@@ -1994,11 +1994,11 @@ Procedure Keyboard()
   
 EndProcedure
 
-Procedure GameOver()
+Procedure GameOver(SnakeID.i)
 ; ============================================================================
 ; NAME: Game Over
 ; DESC: End of the Game
-; VAR(*): 
+; VAR(SnakeID.i): ID des Snake, welcher gekilled wurde! 
 ; RET: -
 ; ============================================================================
 
@@ -2421,6 +2421,7 @@ Procedure StartGame()
                 xDraw = #True
                 
                 ; remove Snake and Check GameOver 
+                GameOver(I) ; Snake ID an GameOver übergeben, so dass Snake(I) entfernt werden kann.
               EndIf
             EndIf
           EndWith
@@ -2675,8 +2676,8 @@ DataSection
  
  DisableExplicit
 ; IDE Options = PureBasic 6.00 LTS (Windows - x86)
-; CursorPosition = 94
-; FirstLine = 2457
+; CursorPosition = 2000
+; FirstLine = 1966
 ; Folding = --+-----
 ; Optimizer
 ; EnableXP

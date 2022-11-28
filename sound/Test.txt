@@ -1,1 +1,3 @@
 
+please download the sounds from 
+https://github.com/kennycason/snakes/tree/master/sound

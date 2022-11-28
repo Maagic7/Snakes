@@ -3,17 +3,17 @@
 ;  NAME : Snakes 
 
 ;  DESC : Snakes Game
-;  DESC : Projekt für die Programmierausbildung in Schulen
+;  DESC : Projekt fÃ¼r die Programmierausbildung in Schulen
 ;  DESC : oder Programmierkursen. Mit Anleitung des Ausbilders
-;  DESC : durchaus für Programmiereinsteiger gedacht.
+;  DESC : durchaus fÃ¼r Programmiereinsteiger gedacht.
 ;  DESC : Der Code ist extra umfangreich dokumentiert,
-;  DESC : sauber in kleine verständliche Sub-Routinen unterteilt,
-;  DESC : welche als einzelne Programmierübungen herausgegriffen werden
-;  DESC : können. 
+;  DESC : sauber in kleine verstÃ¤ndliche Sub-Routinen unterteilt,
+;  DESC : welche als einzelne ProgrammierÃ¼bungen herausgegriffen werden
+;  DESC : kÃ¶nnen. 
 
 ;  DESC : Es handelt sich um eine reine procedurale Prgogrammierung
 ;  DESC : OOP (Objektorientierung wird nicht verwendet). 
-;  DESC : OOP wird auch von PureBasic nicht nativ unterstützt!
+;  DESC : OOP wird auch von PureBasic nicht nativ unterstÃ¼tzt!
 ;
 ;  DESC : Die Varibalen und Procedure Namen sind durchgehend in englisch
 ;  DESC : gehalten. Das hat den Vorteil, dass erfahrene Programmierer
@@ -21,15 +21,15 @@
 ;  DESC : Die Code Dokumentation ist jedoch deutsch.
 ;  
 ;  DESC : Warum gerade PureBasic und nicht Java oder C?
-;  DESC : In C, Java, etc. würde man das gleiche Programm nicht
-;  DESC : so kompakt und einfach hinbekommen. Man würde eine
-;  DESC : Megen externer Libraries benötigen, in die man sich
-;  DESC : noch zusätzlich einarbeiten muss. Für Einsteiger ist
+;  DESC : In C, Java, etc. wÃ¼rde man das gleiche Programm nicht
+;  DESC : so kompakt und einfach hinbekommen. Man wÃ¼rde eine
+;  DESC : Megen externer Libraries benÃ¶tigen, in die man sich
+;  DESC : noch zusÃ¤tzlich einarbeiten muss. FÃ¼r Einsteiger ist
 ;  DESC : ist das nur frustrierend. 
-;  DESC : PureBasic ist viel nährer an C als klassiche Basic Dialekte
+;  DESC : PureBasic ist viel nÃ¤hrer an C als klassiche Basic Dialekte
 ;  DESC : und eigenet sich daher auch hervoragend als Vorbereitung
-;  DESC : auf C und Java. Bei PureBasic ist viel unötiges
-;  DESC : getippe, wie z.B. bei PASCAL, einfach nicht nötig.
+;  DESC : auf C und Java. Bei PureBasic ist viel unÃ¶tiges
+;  DESC : getippe, wie z.B. bei PASCAL, einfach nicht nÃ¶tig.
 ;  DESC : Um zu einen Wert um 2 zu addieren:
 ;  DESC : C         : i+=2;  
 ;  DESC : PureBasic : i+2    es geht auch i=i+2
@@ -38,25 +38,25 @@
 ;-  Lernziele:
 ;   Vie wichtiger als blanke Programmierbefehle zu lernen 
 ;   ist, von Beginn an, sauber strukturierte Programme zu entwerfen,
-;   gute Lesbarkeit zu gewährleisten, langen verwurschtelten
+;   gute Lesbarkeit zu gewÃ¤hrleisten, langen verwurschtelten
 ;   'Spaghetticode' zu vermeiden.
 ; 
-;   Übung 1: Spiel spielen, Diskussion, Fragen, fällt was auf, gibt es Probleme
-;   Übung 2: diesen Code mit dem original 'Quick and dirty Code' vergleichen.
+;   Ãœbung 1: Spiel spielen, Diskussion, Fragen, fÃ¤llt was auf, gibt es Probleme
+;   Ãœbung 2: diesen Code mit dem original 'Quick and dirty Code' vergleichen.
 ;            Diskussion, Fragen
-;   Übung 3: Grobes duchgehen durch die einzelnen Programmsektionen
-;            Erklärung des Programms durch den Lehrer
+;   Ãœbung 3: Grobes duchgehen durch die einzelnen Programmsektionen
+;            ErklÃ¤rung des Programms durch den Lehrer
 ; 
 ;
 ;-  PureBasic Features: 
 ; * PureBasic ist extrem schnell und 
 ; * erzeugt .EXE Dateien, die ohne Installation laufen,
 ; * hat alle Kontrollstrukturen moderner Programmiersprachen
-; * hat extrem mächtige in die Sprache integrierte Befehle
-; * z.B. für verkettete Listen, SQL-Lite Database, für 2D und 3D Grafik
-; * PureBasic läuft Cross-Platform x86 x64 Prozessoern unter Windows, Linux,  
-;   MacOS, sogar eine Version für den Amiga gibt es noch.
-; * Ab der kommenden Version 6 läuft es auch auf dem RASPI ARM Prozessor
+; * hat extrem mÃ¤chtige in die Sprache integrierte Befehle
+; * z.B. fÃ¼r verkettete Listen, SQL-Lite Database, fÃ¼r 2D und 3D Grafik
+; * PureBasic lÃ¤uft Cross-Platform x86 x64 Prozessoern unter Windows, Linux,  
+;   MacOS, sogar eine Version fÃ¼r den Amiga gibt es noch.
+; * Ab der kommenden Version 6 lÃ¤uft es auch auf dem RASPI ARM Prozessor
 ; * und den ARM MACs
 ;}
 ; ===========================================================================
@@ -68,8 +68,8 @@
 ; ===========================================================================
 ; ChangeLog:  21.02-30.03.2022
 ;             - komplette Erneuerung des Programm Codes. Vom original
-;               blieb fast nichts übrig. 
-;             - Zusätzliche Foods hinzugefügt. Bewegliche Foods eingeführt.
+;               blieb fast nichts Ã¼brig. 
+;             - ZusÃ¤tzliche Foods hinzugefÃ¼gt. Bewegliche Foods eingefÃ¼hrt.
 ;             - detaillierte Code Doumentation
 ;
 ;             19/20.02.2022 original Code von Kenny Cason dokumentiert
@@ -77,7 +77,7 @@
 ;            - von alter Gosub Technik auf Procedur-Technik umgestellt
 ;            - auf expliziete Varibalendefinition umgestellt (EnableExplicit)
 ;              somit werden Tippfehler in Varibalen erkannt.
-;            - Konstanten statt fixer Zahlen für bessere Lesbarkeit
+;            - Konstanten statt fixer Zahlen fÃ¼r bessere Lesbarkeit
 ;            - Code optimiert und Fehler behoben
 ; ============================================================================
 
@@ -130,7 +130,7 @@ Enumeration eSnakeType        ; Typvarianten der Snakes
   #eSnakeType_Hippy           ; hippy
 EndEnumeration
         
-; Konstanten für die Bewegungsrichtung auf dem Spielfeld : 0=up 1=right 2=down 3=left
+; Konstanten fÃ¼r die Bewegungsrichtung auf dem Spielfeld : 0=up 1=right 2=down 3=left
 Enumeration eDirection
   #eDirection_up    
   #eDirection_right 
@@ -151,12 +151,12 @@ Enumeration eSound ; IDs der Sounds in der SoundList()
   #eSound53
 EndEnumeration
 
-; Konstanten für die verschiedenen Foods 1..15
+; Konstanten fÃ¼r die verschiedenen Foods 1..15
 Enumeration eFoodType
   #eFood_Ant = 1      ; Ameise
   #eFood_Apple        ; Apfel
   #eFood_Bee          ; Biene  
-  #eFood_Bug          ; Käfer
+  #eFood_Bug          ; KÃ¤fer
   #eFood_Burger       ; Burger
   #eFood_Cherry       ; Kirschen
   #eFood_Crab         ; Krabbe
@@ -167,22 +167,22 @@ Enumeration eFoodType
   #eFood_Mushroom     ; Pilz
   #eFood_Scorpion     ; Skorpion
   #eFood_Spider       ; Spinne
-  #eFood_Turtle       ; Schildkröte 
+  #eFood_Turtle       ; SchildkrÃ¶te 
 EndEnumeration
 
-; Konstanten für die SpriteIDs; damit wir uns nicht unendlich viele Zahlen merken müssen,
-; verwenden wir aussagekräftigere Konstanten
-; da wir teils für die Sprites 4 Richtunge benötigen, erzeugen wir die SpriteIDs
+; Konstanten fÃ¼r die SpriteIDs; damit wir uns nicht unendlich viele Zahlen merken mÃ¼ssen,
+; verwenden wir aussagekrÃ¤ftigere Konstanten
+; da wir teils fÃ¼r die Sprites 4 Richtunge benÃ¶tigen, erzeugen wir die SpriteIDs
 ; mit einem Abstand von 4, wir beginnen mit 0. Es handelt sich erstmal nur im IDs, so dass wir 
-; die Sprites später in der Liste adressieren können. Für den Speicherverbrauch
+; die Sprites spÃ¤ter in der Liste adressieren kÃ¶nnen. FÃ¼r den Speicherverbrauch
 ; ist das nicht relevant
 Enumeration eSprite 0  Step 4   ; beginnend bei 0 - Schrittweite 4
-  #eSprite_Nothing ; Wert für kein Sprite (vorhanden)  ; =0
+  #eSprite_Nothing ; Wert fÃ¼r kein Sprite (vorhanden)  ; =0
   #eSprite_body1   ; green                             ; =4
   #eSprite_body2   ; yellow                            ; =8
   #eSprite_body3   ; orange                            ; =12
   #eSprite_body4   ; blue
-  #eSprite_body5   ; teal (türkis)
+  #eSprite_body5   ; teal (tÃ¼rkis)
   #eSprite_body6   ; red
   #eSprite_body7   ; purpel
   #eSprite_body8   ; ghost
@@ -192,18 +192,18 @@ Enumeration eSprite 0  Step 4   ; beginnend bei 0 - Schrittweite 4
   #eSprite_head2   ; yellow
   #eSprite_head3   ; orange
   #eSprite_head4   ; blue
-  #eSprite_head5   ; teal (türkis)
+  #eSprite_head5   ; teal (tÃ¼rkis)
   #eSprite_head6   ; red
   #eSprite_head7   ; purpel
   #eSprite_head8   ; ghost
   #eSprite_head9   ; hippy
   
-  ; Für die Foods verwenden wir immer 4 Sprites, 
-  ; egal ob wir Richtungsänderung benötigen oder nicht
+  ; FÃ¼r die Foods verwenden wir immer 4 Sprites, 
+  ; egal ob wir RichtungsÃ¤nderung benÃ¶tigen oder nicht
   #eSprite_Food_Ant     ; Ameise
   #eSprite_Food_Apple   ; Apfel
   #eSprite_Food_Bee     ; Biene  
-  #eSprite_Food_Bug     ; Käfer
+  #eSprite_Food_Bug     ; KÃ¤fer
   #eSprite_Food_Burger  ; Burger
   #eSprite_Food_Cherry  ; Kirschen
   #eSprite_Food_Crab    ; Krabbe
@@ -214,15 +214,15 @@ Enumeration eSprite 0  Step 4   ; beginnend bei 0 - Schrittweite 4
   #eSprite_Food_Mushroom    ; Pilz
   #eSprite_Food_Scorpion    ; Skorpion
   #eSprite_Food_Spider      ; Spinne
-  #eSprite_Food_Turtle      ; Schildkröte
+  #eSprite_Food_Turtle      ; SchildkrÃ¶te
   
-  #eSprite_misc1 ; X (Sprite für leeres Feld)
+  #eSprite_misc1 ; X (Sprite fÃ¼r leeres Feld)
   
   #eSprite_Wall1 ;
 
 EndEnumeration
 
-Enumeration eImage ; IDs für einzelnen Bilder der ImageList()
+Enumeration eImage ; IDs fÃ¼r einzelnen Bilder der ImageList()
   #eImage_head1
   #eImage_head2
   #eImage_head3
@@ -238,7 +238,7 @@ EndEnumeration
 ; Debug "SpiteIDs"
 ; Debug  #eSprite_body1 : Debug #eSprite_head1 : Debug #eSprite_head2
 
-Enumeration eCtrlMode       ; Konstanten für Player Control-Mode
+Enumeration eCtrlMode       ; Konstanten fÃ¼r Player Control-Mode
   #eCtrlMode_Keyboard = 1   ; Steuerung mit Tastatur
   #eCtrlMode_Joystick1      ; Steuerung mit Joystick 1
   #eCtrlMode_Joystick2      ; Steuerung mit JoyStick 2
@@ -252,7 +252,7 @@ EndEnumeration
 ;- ----------------------------------------------------------------------
 ;{
 
-Enumeration eElement ; IDs f+r die möglichen Element-Typen am Feld
+Enumeration eElement ; IDs f+r die mÃ¶glichen Element-Typen am Feld
   #eElement_Nothing = 0 ; nichts
   #eElement_TFood       ; Food-Element vom Typ THead
   #eElement_THead       ; Snake-Head   vom Typ THead
@@ -267,7 +267,7 @@ Structure TPoint    ; Type Point
 EndStructure
     
 Structure TFood ; Type Food
-  x.i           ; X-Position im Speilfeld-Gitter (Pixel-Koordinaten erhält man indem man x*FieldSize\x berechnet)
+  x.i           ; X-Position im Speilfeld-Gitter (Pixel-Koordinaten erhÃ¤lt man indem man x*FieldSize\x berechnet)
   y.i           ; X-Position im Speilfeld-Gitter 
   FoodType.i    ; Food Typ [#eFood]
   SpriteID.i    ; ID des Sprite [#eSprite]
@@ -281,7 +281,7 @@ EndStructure
 Structure THead  ; Type Head (Snake\Head)
   x.i
   y.i
-  SnakeID.i      ; ID der Snake, damit lässt sich das BodyElement rückverfolgen, wenn man es auf dem Spielfeld findet
+  SnakeID.i      ; ID der Snake, damit lÃ¤sst sich das BodyElement rÃ¼ckverfolgen, wenn man es auf dem Spielfeld findet
   direction.i    ; 1 up 2 right 3 down 4 left -  Use #eDirection
 EndStructure
 
@@ -289,7 +289,7 @@ Structure TBody  ; Type Body
   x.i
   y.i
   SpriteID.i     ; ID des Sprite (wird beim Erstellen eines neuen Body-Elements von \Snake\SpriteID_Body geerbt)
-  SnakeID.i      ; ID der Snake, damit lässt sich das BodyElement rückverfolgen, wenn man es auf dem Spielfeld findet
+  SnakeID.i      ; ID der Snake, damit lÃ¤sst sich das BodyElement rÃ¼ckverfolgen, wenn man es auf dem Spielfeld findet
   pos.i          ; Position in the Body (1= neuestes Element)
 EndStructure
 
@@ -297,20 +297,20 @@ EndStructure
 Structure TWall   ; Type Wall - Wandelement
    x.i
    y.i
-   SpriteID.i     ; ID des Sprite welches die Grafik für das Wandelement enthält
+   SpriteID.i     ; ID des Sprite welches die Grafik fÃ¼r das Wandelement enthÃ¤lt
 EndStructure
 
 Structure TSnake    ; Type Snake
   eSnakeType.i      ; Typ/Farbe der Snake (Enumeration eSnakeType) 0 = #eSnakeTye_invisible
-  Length.i          ; Länge des Snake in Elementen
-  L_Add.i           ; Anzahl Längenelemente hinzufügen: bei jedem Move dann 1 Element verlängert bis L_Add=0
+  Length.i          ; LÃ¤nge des Snake in Elementen
+  L_Add.i           ; Anzahl LÃ¤ngenelemente hinzufÃ¼gen: bei jedem Move dann 1 Element verlÃ¤ngert bis L_Add=0
   Speed.i           ; aktuelle Geschwindigkeit des Snake
   PlayerID.i        ; ID bzw. Nr. des Spielers, der den Snake steuert
   Head.THead        ; Defintion des Snake-Head
   SpriteID_Body.i   ; Standard SpriteID der Body Elemente (wird an die Body()-Elemente vererbt)
   Credits.i         ; Summe der Credits die der Snake aufgesammelt hat
-  xWaitNextMove.i   ; Hinweis für Tastaturabfrage: Mit nächster Tastaturabfrage warten bis nach nächtem Move 
-  TmrSpeed.i        ; Timer, Zähler Speed 
+  xWaitNextMove.i   ; Hinweis fÃ¼r Tastaturabfrage: Mit nÃ¤chster Tastaturabfrage warten bis nach nÃ¤chtem Move 
+  TmrSpeed.i        ; Timer, ZÃ¤hler Speed 
   List Body.Tbody() ; Liste der Body-Elemente vom DatenTyp TBody
 EndStructure
 
@@ -325,13 +325,13 @@ Structure TPlayer     ; Type Player
   Name.s              ; Name des Spielers (String)
   Score.i             ; Score (Punkte)
   HiScore.i           ; HiScore des Spielers
-  SnakeID.i           ; ID bzw. Nr. der gesteuerten Snake, damit werden fliegende Übergaben der Snakes möglich
+  SnakeID.i           ; ID bzw. Nr. der gesteuerten Snake, damit werden fliegende Ãœbergaben der Snakes mÃ¶glich
   eCtrlMode.i         ; Bedienmodus: Tastatur, Joystick, Maus
-  KeysIDs.TKeyIDs     ; Tasten Codes für Snake Steuerung
+  KeysIDs.TKeyIDs     ; Tasten Codes fÃ¼r Snake Steuerung
 EndStructure
 
 Structure TPkdFlds    ; Typ PackedFields: Hifs-Struktur um Radar-Feldbelegung in 4-Byte LONG zu packen 
-  up.a                ; Feldbelegung überhalb 
+  up.a                ; Feldbelegung Ã¼berhalb 
   right.a             ; Feldbelegung rechts
   down.a              ; Feldbelegung unterhalb
   left.a              ; Feldbelegung links    
@@ -344,7 +344,7 @@ Structure TFieldRadar ; Typ FieldRadar - zur Speicherung der Umgebung eines Feld
     ; StructureUnion legt alle folgenden Variablendefinitionen  auf gleiche Adresse
     ; lValue und Flds sind also nur 2 verschiedene Sichten auf die gleichen Werte
     ; 1x als 4-Byte Long und 1x als 4 einzelne Bytes. Dies benztzen wir, um 
-    ; die Feldbelegung rund um ein Feld als Long zu übergeben und als
+    ; die Feldbelegung rund um ein Feld als Long zu Ã¼bergeben und als
     ; einzelne Felder auszuwerten.
     lValue.l          ; 4-Byte-Long
     Flds.TPkdFlds     ; Flds zerlegt lValue in 4 einzelne Bytes  
@@ -355,13 +355,13 @@ EndStructure
 ;     B O A R D   D A T A  - S P I E L F E L D  D A T E N
 ; ----------------------------------------------------------------------
 
-#Board_StatusBar_Height = 32 ; Höhe der Statusbar des Spielfeldes (für Anzeigen Spielstand...)
+#Board_StatusBar_Height = 32 ; HÃ¶he der Statusbar des Spielfeldes (fÃ¼r Anzeigen Spielstand...)
 
 Structure TBoard        ; Typ Board
   Fields.TPoint
   PixelPerField.Tpoint
   Origin.Tpoint         ; Ursprung des Boards in Pixelkoordinaten
-  PixelSize.Tpoint      ; Board Grösse in Pixel X,Y-Richtung = Breite,Höhe
+  PixelSize.Tpoint      ; Board GrÃ¶sse in Pixel X,Y-Richtung = Breite,HÃ¶he
   xShowGrid.i           ; ShowGridLines #False/#True
   GridColor.i           ; Farbe der GridLines
   BoardColor.i          ; Hintergrundfarbe Spielfeld
@@ -373,15 +373,15 @@ Global Board1.TBoard     ; Variable Board1 erzeugen
 With Board1
   \Fields\x = 30          ; Felder in X-Richtung [0..30]
   \Fields\y = 30          ; Felder in Y-Richtung [0..30]
-  \PixelPerField\x = 32   ; Feldgröße in Pixel X - das enspricht der Größe der Sprites
-  \PixelPerField\y = 32   ; Feldgröße in Pixel X
+  \PixelPerField\x = 32   ; FeldgrÃ¶ÃŸe in Pixel X - das enspricht der GrÃ¶ÃŸe der Sprites
+  \PixelPerField\y = 32   ; FeldgrÃ¶ÃŸe in Pixel X
   \xShowGrid = #True      ; Show Grid Lines
   \GridColor = RGB(80,80,80) ; Farbe der Grid Linien  [grau]
   \BoardColor = RGB(0,0,0)      ; Hintergrundfarbe Boear [schwarz]
 EndWith
 
 ; wird verwendet um das Element zu definieren, welches auf dem Feld plaziert ist
-Structure TBoardField  ; Typ GridField für die einzelnen Felder des Spielfeldes
+Structure TBoardField  ; Typ GridField fÃ¼r die einzelnen Felder des Spielfeldes
   ElementID.i         ; ID des auf dem Feld plazierten Elements #eElement_TFood, #eElement_THead, ...
   ptrElement.i        ; Pointer to Element Memory, Zeiger auf den Speicherplatz des Elements
 EndStructure
@@ -393,7 +393,7 @@ Global Dim Grid.TBoardField(162,92)  ; Felder am Brett, 5K := 5120x2880 => X=160
 ;-  Game Settings
 ; ----------------------------------------------------------------------
 
-Structure TGameSetup ; Typ für Game Einstellungen
+Structure TGameSetup ; Typ fÃ¼r Game Einstellungen
   xFullScreen.i
   SnakeType1.i
   SnakeType2.i
@@ -406,10 +406,10 @@ EndStructure
 
 Global GameSetup.TGameSetup ; Variable mit den Game-Settings
 
-; PureBasic erstellt Arrays immer mit 0 für das erste Element, wir verwenden
+; PureBasic erstellt Arrays immer mit 0 fÃ¼r das erste Element, wir verwenden
 ; zwecks einfacherer Zuordung nur von 1..2
-Global Dim Snakes.TSnake(2)      ; Array für Daten von Snake 0..2
-Global Dim Players.TPlayer(2)    ; Array für Daten von Player 0..2
+Global Dim Snakes.TSnake(2)      ; Array fÃ¼r Daten von Snake 0..2
+Global Dim Players.TPlayer(2)    ; Array fÃ¼r Daten von Player 0..2
 ; ----------------------------------------------------------------------
 
 ; ----------------------------------------------------------------------
@@ -426,7 +426,7 @@ Global.i sound, SoundID, SoundIDnew, SoundIDold
 
 ;}
 
-; Macro für Wertebegrenzung Min,Max
+; Macro fÃ¼r Wertebegrenzung Min,Max
 Macro LimitMinMax(Value, Min, Max)
   If Value < Min
     Value = Min
@@ -436,7 +436,7 @@ Macro LimitMinMax(Value, Min, Max)
 EndMacro
 
 ; ----------------------------------------------------------------------
-; Zyklische Zählerbasierte Timer, CounterBasedTimers
+; Zyklische ZÃ¤hlerbasierte Timer, CounterBasedTimers
 ; ----------------------------------------------------------------------
 
 Global Dim CTmr(10) ; Counter basierte Timmer 0..10
@@ -458,13 +458,13 @@ Global Dim CTmr(10) ; Counter basierte Timmer 0..10
 Macro MACRO_CTmr(Tmr, Time_ms)
   Tmr - 1                          ; 1x BaseTime vom Timer abziehen
   If Tmr < 0                       ; Wenn < 0,
-    Tmr = Time_ms / #CTMR_BaseTime ; dann auf Startwert zurücksetzen 
+    Tmr = Time_ms / #CTMR_BaseTime ; dann auf Startwert zurÃ¼cksetzen 
   EndIf 
 EndMacro
 
 Procedure CounterBasedTimers()
     ; Timer wird immer nach angegebener Zeit #NULL
-    ; Abfrage für Timer abgelaufen If NOT CTMR(#CTMR_100ms)
+    ; Abfrage fÃ¼r Timer abgelaufen If NOT CTMR(#CTMR_100ms)
     MACRO_CTmr(CTmr(#CTMR_100ms), 100)
     MACRO_CTmr(CTmr(#CTMR_200ms), 200)
     MACRO_CTmr(CTmr(#CTMR_400ms), 400)
@@ -498,8 +498,8 @@ EndProcedure
 Macro Catch_Sprite_EX(SpriteID, DSptr, use4Dir)
 ; ============================================================================
 ; NAME: Load_Sprite_EX
-; DESC: läd ein Sprite in 1er oder 4 Richtungen (up, right, down, left)
-; DESC: das Sprite wird jeweils um 90° im Uhrzeigersinn gedreht
+; DESC: lÃ¤d ein Sprite in 1er oder 4 Richtungen (up, right, down, left)
+; DESC: das Sprite wird jeweils um 90Â° im Uhrzeigersinn gedreht
 ; VAR(SpriteID): SpriteID es up-Sprites
 ; VAR(DSptr): Data Section Pointer; Adresse im Datenbereich "?head1
 ; VAR(use4Dir): use 4 directions; Sprite in 4 Ausrichtunge laden
@@ -519,18 +519,18 @@ EndMacro
  Procedure LoadAllSprites()
 ; ============================================================================
 ; NAME: LoadAllSprites
-; DESC: Läd die Sprites aus der DataSection in den Speicher SpriteList()
+; DESC: LÃ¤d die Sprites aus der DataSection in den Speicher SpriteList()
 ; DESC: jedes Sprite braucht seine einzigartige ID (Listen-Nummer)
 ; DESC: Diese IDs haben wir als Konstanten bereits oben erzeugt   
 ; ============================================================================
   
   ; jetzt kommen die Konstanten zum Einsatz, das ist weit
-  ; einfacher, als händisch hier überall korrekte Zahlen einzutragen
-  ; und später dann auch die richtige Zahl wieder zu wissen!
+  ; einfacher, als hÃ¤ndisch hier Ã¼berall korrekte Zahlen einzutragen
+  ; und spÃ¤ter dann auch die richtige Zahl wieder zu wissen!
    
-  ; Macro Catch_Sprite_EX lädt Sprite in 1 (up) oder 4 Ausrichtungen (up,right,down,left) 
-  ; für Sprite_Nothing laden wir ein X, damit sehen wir wenn irgenwo etwas
-  ; falsch läuft, dann taucht ein X am Spielfeld auf
+  ; Macro Catch_Sprite_EX lÃ¤dt Sprite in 1 (up) oder 4 Ausrichtungen (up,right,down,left) 
+  ; fÃ¼r Sprite_Nothing laden wir ein X, damit sehen wir wenn irgenwo etwas
+  ; falsch lÃ¤uft, dann taucht ein X am Spielfeld auf
   Catch_Sprite_EX(#eSprite_Nothing, ?misc1, #False) 
   
   ; Snake Heads
@@ -538,7 +538,7 @@ EndMacro
   Catch_Sprite_EX(#eSprite_head2, ?head2, #True)    ; yellow
   Catch_Sprite_EX(#eSprite_head3, ?head3, #True)    ; orange 
   Catch_Sprite_EX(#eSprite_head4, ?head4, #True)    ; blue
-  Catch_Sprite_EX(#eSprite_head5, ?head5, #True)    ; teal (türkis)
+  Catch_Sprite_EX(#eSprite_head5, ?head5, #True)    ; teal (tÃ¼rkis)
   Catch_Sprite_EX(#eSprite_head6, ?head6, #True)    ; red
   Catch_Sprite_EX(#eSprite_head7, ?head7, #True)    ; purple
   Catch_Sprite_EX(#eSprite_head8, ?head8, #True)    ; ghost
@@ -559,7 +559,7 @@ EndMacro
   Catch_Sprite_EX(#eSprite_Food_Ant,   ?food1, #True)       ; Ameise
   Catch_Sprite_EX(#eSprite_Food_Apple, ?food2, #False)      ; Apfel
   Catch_Sprite_EX(#eSprite_Food_Bee,   ?food3, #True)       ; Biene
-  Catch_Sprite_EX(#eSprite_Food_Bug,   ?food4, #True)       ; Käfer
+  Catch_Sprite_EX(#eSprite_Food_Bug,   ?food4, #True)       ; KÃ¤fer
   Catch_Sprite_EX(#eSprite_Food_Burger,?food5, #False)      ; Burger
   
   Catch_Sprite_EX(#eSprite_Food_Cherry, ?food6, #False)     ; Kirschen
@@ -572,7 +572,7 @@ EndMacro
   Catch_Sprite_EX(#eSprite_Food_Mushroom, ?food12, #False)  ; Pilz
   Catch_Sprite_EX(#eSprite_Food_Scorpion, ?food13, #True)   ; Skorpion
   Catch_Sprite_EX(#eSprite_Food_Spider,   ?food14, #True)   ; Spinne
-  Catch_Sprite_EX(#eSprite_Food_Turtle,   ?food15, #True)   ; Schildkröte
+  Catch_Sprite_EX(#eSprite_Food_Turtle,   ?food15, #True)   ; SchildkrÃ¶te
 
   Catch_Sprite_EX(#eSprite_misc1, ?misc1, #False)
   
@@ -583,8 +583,8 @@ EndProcedure
 Procedure LoadAllImages()
 ; ============================================================================
 ; NAME: LoadAllImages
-; DESC: Lädt die Images aus der DataSection in den Speicher, ImageList()
-; DESC: Diese Bilder werden später im Menu-Window dargestellt
+; DESC: LÃ¤dt die Images aus der DataSection in den Speicher, ImageList()
+; DESC: Diese Bilder werden spÃ¤ter im Menu-Window dargestellt
 ; ============================================================================
   
    CatchImage(#eImage_head1, ?head1)    
@@ -605,15 +605,15 @@ Procedure Init_FoodTemplates()
 ; ============================================================================
 ; NAME: Init_FoodTemplates
 ; DESC: Initialisieren des FoodTemplate Array
-; DESC: Vordefinieren der Food-Daten, so dass diese dann später
+; DESC: Vordefinieren der Food-Daten, so dass diese dann spÃ¤ter
 ; DESC: beim Erstellen neuer Food-Elements aus den Templates kopiert
-; DESC: werden können
+; DESC: werden kÃ¶nnen
 ; ============================================================================
   
   ; ----------------------------------------------------------------------
   ; Food 1 : Ameise
   ; ----------------------------------------------------------------------
-  With FoodTemplates(1)   ; Food(1) Struktur öffnen
+  With FoodTemplates(1)   ; Food(1) Struktur Ã¶ffnen
     \SpriteID = #eSprite_Food_Ant
     \FoodType = #eFood_Ant
     \Credits = 10
@@ -635,7 +635,7 @@ Procedure Init_FoodTemplates()
   ; ----------------------------------------------------------------------
   ; Food 3 : Biene
   ; ----------------------------------------------------------------------
-  With FoodTemplates(3) ; Food(3) Struktur öffnen
+  With FoodTemplates(3) ; Food(3) Struktur Ã¶ffnen
     \SpriteID = #eSprite_Food_Bee
     \FoodType = #eFood_Bee
     \Credits = 10
@@ -644,7 +644,7 @@ Procedure Init_FoodTemplates()
      \xMovable = #True
   EndWith 
   ; ----------------------------------------------------------------------
-  ; Food 4 : Käfer
+  ; Food 4 : KÃ¤fer
   ; ---------------------------------------------------------------------- 
   With FoodTemplates(4) 
     \SpriteID = #eSprite_Food_Bug
@@ -765,7 +765,7 @@ Procedure Init_FoodTemplates()
     \xMovable = #True
   EndWith
   ; ----------------------------------------------------------------------
-  ; Food 15 : Schildkröte
+  ; Food 15 : SchildkrÃ¶te
   ; ----------------------------------------------------------------------
   With FoodTemplates(15) 
     \SpriteID = #eSprite_Food_Turtle
@@ -781,7 +781,7 @@ EndProcedure
 Procedure LoadSnakeSounds()
 ; ============================================================================
 ; NAME: LoadSnakeSounds
-; DESC: Läd die Sounds aus der DataSection in den Speicher, SoundList()
+; DESC: LÃ¤d die Sounds aus der DataSection in den Speicher, SoundList()
 ; DESC: mit PlaySpund(#eSound0) kann der Sound dann abgespielt werden
 ; ============================================================================
   
@@ -889,8 +889,8 @@ EndProcedure
 Procedure Field_IsSnakeHead(x, y)
 ; ============================================================================
 ; NAME: IsField_SnakeHead
-; DESC: Prüft ob das über x,y angegebene Feld einen Snake\Head enthält
-; DESC: und gibt die zueghörige SnakeID zurück
+; DESC: PrÃ¼ft ob das Ã¼ber x,y angegebene Feld einen Snake\Head enthÃ¤lt
+; DESC: und gibt die zueghÃ¶rige SnakeID zurÃ¼ck
 ; VAR(x): X-Pos Feld in Grid()
 ; VAR(y): Y-Pos Feld in Grind()
 ; RET:   SnakeID oder 0, wenn kein Snake\Head
@@ -918,7 +918,7 @@ EndProcedure
 Procedure Field_IsEmpty(x,y)
 ; ============================================================================
 ; NAME: IsField_Empty
-; DESC: Prüft ob das über x,y angegebene Feld leer ist
+; DESC: PrÃ¼ft ob das Ã¼ber x,y angegebene Feld leer ist
 ; VAR(x): X-Pos Feld in Grid()
 ; VAR(y): Y-Pos Feld in Grind()
 ; RET:   #True wenn leer
@@ -927,13 +927,13 @@ Procedure Field_IsEmpty(x,y)
   Protected GridElement, ret
   
   ret = #True
-  If x >=0 And x <= Board1\Fields\x      ; Überprüfung auf die Grenzen des
-    If y >=0 And y <= Board1\Fields\y     ; Spielfeldes für x und y
+  If x >=0 And x <= Board1\Fields\x      ; ÃœberprÃ¼fung auf die Grenzen des
+    If y >=0 And y <= Board1\Fields\y     ; Spielfeldes fÃ¼r x und y
       
       GridElement=Grid(x, y)\ElementID ; ElementID des betroffenen Feldes aus dem Grid-Array lesen
       
-      If GridElement <> #eElement_Nothing ; (=0) Feld enthält kein Element, ist also leer
-        ret = #False                      ; Rückgabewert +#True für leeres Feld
+      If GridElement <> #eElement_Nothing ; (=0) Feld enthÃ¤lt kein Element, ist also leer
+        ret = #False                      ; RÃ¼ckgabewert +#True fÃ¼r leeres Feld
       EndIf
     Else
       ret = #False
@@ -947,7 +947,7 @@ EndProcedure
 Procedure Field_IsOnBoard(x,y)
 ; ============================================================================
 ; NAME: Field_IsOnBoard
-; DESC: Prüft ob das über x,y angegebene Feld auf dem aktuellen
+; DESC: PrÃ¼ft ob das Ã¼ber x,y angegebene Feld auf dem aktuellen
 ; DESC: Spielfeld liegt 
 ; VAR(x): X-Pos Feld in Grid()
 ; VAR(y): Y-Pos Feld in Grind()
@@ -966,8 +966,8 @@ EndProcedure
 Procedure.l Field_Radar(x, y)  ; TFieldRadar
 ; ============================================================================
 ; NAME: Field_Radar
-; DESC: Prüft alle 4 Felder rund um das angegebene Feld und gibt
-; DESC: deren Belegung als 4Byte packed Long zurück.
+; DESC: PrÃ¼ft alle 4 Felder rund um das angegebene Feld und gibt
+; DESC: deren Belegung als 4Byte packed Long zurÃ¼ck.
 ; VAR(x): X-Pos Feld in Grid()
 ; VAR(y): Y-Pos Feld in Grid()
 ; RET: 4-Byte packed Long Feldbelegung(up,right,down,left) .TFieldRadar   
@@ -1021,16 +1021,16 @@ Procedure.l Field_Radar(x, y)  ; TFieldRadar
   EndWith
   
   ; da wir mit TFieldRadar eine StructureUnion verwenden,
-  ; können wir jetzt auf die 4-Bytes B0..B3 direkt über
-  ; den Long-Wert gemeinsam zugreifen und als Rückgabewert verwenden.
-  ; Da wir nur 1 Wert zurückgeben können müssen wir das so machen
+  ; kÃ¶nnen wir jetzt auf die 4-Bytes B0..B3 direkt Ã¼ber
+  ; den Long-Wert gemeinsam zugreifen und als RÃ¼ckgabewert verwenden.
+  ; Da wir nur 1 Wert zurÃ¼ckgeben kÃ¶nnen mÃ¼ssen wir das so machen
   ProcedureReturn radar\lValue  ; Return the packed 4-Bytes as Long
 EndProcedure
 
 Procedure.l FieldRadar_To_ElementRadar(ElementDirection, *FieldRadar.TFieldRadar)
 ; ============================================================================
 ; NAME: FieldRadar_To_ElementRadar
-; DESC: Übersetzt das Radar (Belegung der 4 Nachbarn) aus Feldsicht auf 
+; DESC: Ãœbersetzt das Radar (Belegung der 4 Nachbarn) aus Feldsicht auf 
 ; DESC: das Radar aus Elementsicht unter Einbeziehung der aktuellen 
 ; DESC: Bewegungsrichtung
 ; VAR(ElementDirection): Aktuelle Direction des Elements
@@ -1041,25 +1041,25 @@ Procedure.l FieldRadar_To_ElementRadar(ElementDirection, *FieldRadar.TFieldRadar
   Protected ER.TFieldRadar  ; Element Radar
   
   ; das Radar aus Feldsicht, also die belegten 4-Nachbarfelder up,right,down,left
-  ; umschlüsseln auf das Radar aus Elementsicht, die 4 Nachbarfelder
+  ; umschlÃ¼sseln auf das Radar aus Elementsicht, die 4 Nachbarfelder
   ; voraus, rechts, hinten, links
   ; Dies hat den Vorteil, dass man in den Bewegungsberechungen die Richtungen
-  ; nicht immer einzeln aufschlüsseln muss und dazu noch eine Menge If
+  ; nicht immer einzeln aufschlÃ¼sseln muss und dazu noch eine Menge If
   ; Abfragen zu programmieren. 
   ; Meine erste Version war mit vielen CASE und IF. Das System mit dem
   ; RADAR aus Feld und Elementsicht ergab sich als Vereinfachung daraus.
-  ; Es ist eine elegantere Lösung!
+  ; Es ist eine elegantere LÃ¶sung!
   
   ; fuer das ElementRadar verwenden wir
   ; up    = forward; vorwaerts
   ; right = right; rechts
-  ; down  = reverse; rückwärts
+  ; down  = reverse; rÃ¼ckwÃ¤rts
   ; left  = left; links
   With *FieldRadar
     Select ElementDirection
       Case #eDirection_up
         ; bei Direction up ist, passt die Elementausrichtung zur Feldausrichtung
-        ; vvorwärts = up  - fwd=up 
+        ; vvorwÃ¤rts = up  - fwd=up 
         ER\lValue = \lValue     
         
       Case #eDirection_right        
@@ -1090,8 +1090,8 @@ Procedure Field_AddPosX(Xpos, delta)
 ; ============================================================================
 ; NAME: Field_AddPosX
 ; DESC: delta zur Feldpostion addieren (Xpos+delta)
-; DESC: Das Ergebnis wird auf die Spielfeldgröße begrenzt,
-; DESC: wobei es eine umslaufende Begrenzung ist. D.h. bei Überlauf geht
+; DESC: Das Ergebnis wird auf die SpielfeldgrÃ¶ÃŸe begrenzt,
+; DESC: wobei es eine umslaufende Begrenzung ist. D.h. bei Ãœberlauf geht
 ; DESC: bei 0 weiter
 ; RET : Xpos + delta [0..\Board\Fields\x] umlaufende Begrenzung
 ; ============================================================================
@@ -1099,14 +1099,14 @@ Procedure Field_AddPosX(Xpos, delta)
   
   ret = Xpos + delta
   
-  ; hier die Ueberprüfung auf die Feldgrenzen. Im Gegensatz zu der
+  ; hier die UeberprÃ¼fung auf die Feldgrenzen. Im Gegensatz zu der
   ; TrunRight, TurnLeft Funktion, kann man hier nicht mit & Board1\Fields\x
   ; den Bereich begrenzen, da wir mit der Anzahl der Felder nicht genau
-  ; einen voll ausgenutzen Bit-Bereich treffen. Wir müssen mit If
-  ; die Grenzen abfragen und den Überlauf verwalten.
-  If ret > Board1\Fields\x  ; Überlauf positiv
+  ; einen voll ausgenutzen Bit-Bereich treffen. Wir mÃ¼ssen mit If
+  ; die Grenzen abfragen und den Ãœberlauf verwalten.
+  If ret > Board1\Fields\x  ; Ãœberlauf positiv
     ret = 0
-  ElseIf ret < 0            ; Überlauf negativ
+  ElseIf ret < 0            ; Ãœberlauf negativ
     ret = Board1\Fields\x
   EndIf  
   ProcedureReturn ret
@@ -1116,18 +1116,18 @@ Procedure Field_AddPosY(Ypos, delta)
 ; ============================================================================
 ; NAME: Field_AddPosY
 ; DESC: delta zur Feldpostion addieren (Ypos+delta)
-; DESC: Das Ergebnis wird auf die Spielfeldgröße begrenzt,
-; DESC: wobei es eine umslaufende Begrenzung ist. D.h. bei Überlauf geht
+; DESC: Das Ergebnis wird auf die SpielfeldgrÃ¶ÃŸe begrenzt,
+; DESC: wobei es eine umslaufende Begrenzung ist. D.h. bei Ãœberlauf geht
 ; DESC: bei 0 weiter
 ; RET : Ypos + delta [0..\Board\Fields\y] umlaufende Begrenzung
 ; ============================================================================
   Protected ret 
 
   ret= Ypos + delta
-  ; Überlauf prüfen und handhaben
-  If ret > Board1\Fields\y ; Überlauf positiv
+  ; Ãœberlauf prÃ¼fen und handhaben
+  If ret > Board1\Fields\y ; Ãœberlauf positiv
     ret = 0
-  ElseIf ret < 0           ; Überlauf negativ
+  ElseIf ret < 0           ; Ãœberlauf negativ
     ret = Board1\Fields\y
   EndIf  
   ProcedureReturn ret  
@@ -1141,12 +1141,12 @@ Procedure Direction_TrunRight(actDirection)
 ; RET:  neue Richtung des Elements (0:up,1:right,2:down,3:left)
 ; ============================================================================
   
-  ; wir verwenden [0..3] für die 4 Richtungen (0:up,1:right,2:down,3:left)
-  ; wenn wir immer nur 1 addieren, würden wir irgendwann >3 werden, was
-  ; keine gültige Richtung mehr darstellt. Wir müssen also die Richtungen
-  ; immer auf 0..3 begrenzen. Das könnte man If-Abfragen machen.
-  ; da wir aber mit der größten Zahl 3 binär genau 2 Bits(3 = %0011) belegen,
-  ; können wir durch einen binären AND Befehl (in PureBasic '&'), unseren
+  ; wir verwenden [0..3] fÃ¼r die 4 Richtungen (0:up,1:right,2:down,3:left)
+  ; wenn wir immer nur 1 addieren, wÃ¼rden wir irgendwann >3 werden, was
+  ; keine gÃ¼ltige Richtung mehr darstellt. Wir mÃ¼ssen also die Richtungen
+  ; immer auf 0..3 begrenzen. Das kÃ¶nnte man If-Abfragen machen.
+  ; da wir aber mit der grÃ¶ÃŸten Zahl 3 binÃ¤r genau 2 Bits(3 = %0011) belegen,
+  ; kÃ¶nnen wir durch einen binÃ¤ren AND Befehl (in PureBasic '&'), unseren
   ; Wert korrekt auf 2 Bits berenzen. Das funktioniert nur, wenn unser
   ; Zahlenbereich genau alle Bits eines Bereichs nutzt.  z.B. (3,7,15,31,63,127,255, ...)
   ; Bei anderen Zahlenbereichen muss man mit If Abfragen arbeiten
@@ -1168,8 +1168,8 @@ Procedure Direction_TurnToFree(actDirection, *ElementRadar.TFieldRadar)
 ; NAME: Direction_TurnToFree
 ; DESC: Richtung von Elementen auf frei Richtung drehen
 ; DESC: bevorzugt links, rechts, Ist links und rechts belegt, dann
-; DESC: auf gegenüberliegende Richtung (umkehren). Ist sowohl links
-; DESC: wie rechts frei, wird zufällig ausgewählt 
+; DESC: auf gegenÃ¼berliegende Richtung (umkehren). Ist sowohl links
+; DESC: wie rechts frei, wird zufÃ¤llig ausgewÃ¤hlt 
 ; VAR(actDirection): aktuelle Richtung des Elements 
 ; VAR(*ElementRadar.TFieldRadar): Belegung der Nachbarfelder aus Element sicht
 ; RET: neue Richtung des Elements (0:up,1:right,2:down,3:left)
@@ -1209,8 +1209,8 @@ Procedure Snake_Move(SnakeID)
 ; DESC: Bewegt Snake um 1 Feld auf dem Brett weiter, je nach Ausrichtung
 ; DESC: des Kopfes up, right, down, left
 ; VAR(SnakeID):  Snake-ID 
-; VAR(xAddElement): #False = nur Bewegung Länge bleibt
-;                   #True  = Bewegung und Länge +1  
+; VAR(xAddElement): #False = nur Bewegung LÃ¤nge bleibt
+;                   #True  = Bewegung und LÃ¤nge +1  
 ; RET: -
 ; ============================================================================
   
@@ -1218,18 +1218,18 @@ Procedure Snake_Move(SnakeID)
   If (SnakeID >0) And (SnakeID <= ArraySize(Snakes()))
     ; Debug "Snake Move : " + Str(SnakeID) 
         
-    With Snakes(SnakeID)        ; Snakes Structure öffenen
-      AddElement(\Body())       ; neues Body-Element hinzufügen
+    With Snakes(SnakeID)        ; Snakes Structure Ã¶ffenen
+      AddElement(\Body())       ; neues Body-Element hinzufÃ¼gen
       \Body()\x = \Head\x       ; neues Body-Element bekommt Koordinaten
       \Body()\y = \Head\y       ; vom Kopf
       \Body()\pos = 1           ; Pos des Body-Elements, mit 1 Position Head starten, wird am Ende der Procedure um 1 weitergeschaltet
-      \Body()\SnakeID=SnakeID   ; Referenz: Zugeörigkeit zu Snake()
-      \Body()\SpriteID =\SpriteID_Body  ; Standard SpriteID für die BodyElemente aus Snake-Defintion übernehmen
+      \Body()\SnakeID=SnakeID   ; Referenz: ZugeÃ¶rigkeit zu Snake()
+      \Body()\SpriteID =\SpriteID_Body  ; Standard SpriteID fÃ¼r die BodyElemente aus Snake-Defintion Ã¼bernehmen
             
       ; je nach aktuelle Bewegungsrichtung des Kopfes, Kopf um 1 Feld weiter
       Select \head\direction
         Case #eDirection_up
-          \Head\y= Field_AddPosY(\Head\y, -1) ; Addtion mit Berücksichtigung der Spielfeldgröße
+          \Head\y= Field_AddPosY(\Head\y, -1) ; Addtion mit BerÃ¼cksichtigung der SpielfeldgrÃ¶ÃŸe
         Case #eDirection_right
           \Head\x= Field_AddPosX(\Head\x, 1)
         Case #eDirection_down
@@ -1251,12 +1251,12 @@ Procedure Snake_Move(SnakeID)
         Wend 
       EndIf
       
-      ; jetzt müssen wir noch die Tastaturabfrage für den Snake wieder freigeben
+      ; jetzt mÃ¼ssen wir noch die Tastaturabfrage fÃ¼r den Snake wieder freigeben
       ; Die Tastaturabfrage wird immer gesperrt, sobald ein Richtungsbefehl 
-      ; für den Snake erkannt wurde. Dies ist nötig, da die Tastatur
-      ; in sehr viel kürzeren Zeiten (ca. 10ms) abgefragt wirdm, als die
+      ; fÃ¼r den Snake erkannt wurde. Dies ist nÃ¶tig, da die Tastatur
+      ; in sehr viel kÃ¼rzeren Zeiten (ca. 10ms) abgefragt wirdm, als die
       ; Schlange am Bildschirm bewegt wird.
-      \xWaitNextMove = #False ; RESET(Wartebfehl für neue Tastaturabfrage)
+      \xWaitNextMove = #False ; RESET(Wartebfehl fÃ¼r neue Tastaturabfrage)
      
     EndWith     
   EndIf   
@@ -1285,8 +1285,8 @@ Procedure Snake_Init(PlayerID, SnakeID, eSnakeType, eDirection, Length, x, y)
         \Speed = GameSetup\StartSpeed
         \Length = Length
         
-        For I = 1 To \Length-1        ; Kopf zählt bereits als 1, deshalb -1
-          Snake_Move(SnakeID)  ; Bewegung mit Anfügen eines neuen Body()-Elements
+        For I = 1 To \Length-1        ; Kopf zÃ¤hlt bereits als 1, deshalb -1
+          Snake_Move(SnakeID)  ; Bewegung mit AnfÃ¼gen eines neuen Body()-Elements
         Next
       EndWith
     EndIf
@@ -1296,10 +1296,10 @@ EndProcedure
 Procedure Snake_GetHeadSpriteID(SnakeID)
  ; ============================================================================
 ; NAME: Snake_GetHeadSpriteID
-; DESC: Ermittelt die SpriteID für Snake\Head anhand  
+; DESC: Ermittelt die SpriteID fÃ¼r Snake\Head anhand  
 ; DESC: des eingestellen SankeType und der aktuellen \Head\Direction
 ; VAR(SnakeID): ID der Snake 
-; RET: SpriteID für Snake\Head
+; RET: SpriteID fÃ¼r Snake\Head
 ; ============================================================================
 
   Protected DirectionOffset, ret
@@ -1314,7 +1314,7 @@ EndProcedure
 Procedure Snake_AddCredits(SnakeID, Credits)
 ; ============================================================================
 ; NAME: Snake_AddCredits
-; DESC: Fügt die Credits, die der Snake beim futtern aufsammelt 
+; DESC: FÃ¼gt die Credits, die der Snake beim futtern aufsammelt 
 ; DESC: sowohl dem Snake als auch dem Player hinzu
 ; VAR(SnakeID): ID der Snake
 ; VAR(Credits): die Anzahl der Credits, die dem Player zugeschrieben werden
@@ -1326,17 +1326,17 @@ Procedure Snake_AddCredits(SnakeID, Credits)
   If SnakeID >0 And SnakeID <= ArraySize(Snakes())
     
     With Snakes(SnakeID)
-      PlayerID = \PlayerID  ; den zur Snake gehörigen Player ermitteln  
-      \Credits + Credits    ; Credits zur Snake hinzufügen
+      PlayerID = \PlayerID  ; den zur Snake gehÃ¶rigen Player ermitteln  
+      \Credits + Credits    ; Credits zur Snake hinzufÃ¼gen
     EndWith
     
-    ; Korrekterweise müssen die Credits dem Player hinzugefügt werden.
+    ; Korrekterweise mÃ¼ssen die Credits dem Player hinzugefÃ¼gt werden.
     ; Die Credits an den Snake zu verteilen ist nur ein Zusatz-Feature
-    ; Die Methode der getrennten Credits für Sanke & Player macht aber 
-    ; theoretisch einen fliegenden Tausch von Snakes möglich, wobei
-    ; die Credits für den Snake und den Player korrekt erfasst werden.
-    If PlayerID > 0 And PlayerID < ArraySize(Players()) ; PlayerID gültig
-      With Players(PlayerID)      ; Player-Struktur öffnen
+    ; Die Methode der getrennten Credits fÃ¼r Sanke & Player macht aber 
+    ; theoretisch einen fliegenden Tausch von Snakes mÃ¶glich, wobei
+    ; die Credits fÃ¼r den Snake und den Player korrekt erfasst werden.
+    If PlayerID > 0 And PlayerID < ArraySize(Players()) ; PlayerID gÃ¼ltig
+      With Players(PlayerID)      ; Player-Struktur Ã¶ffnen
         \Score + Credits          ; Score + Credits
         If \Score > \HiScore      ; neuer HiScore ?
           \HiScore = \Score
@@ -1357,22 +1357,22 @@ Procedure Snake_Food(SnakeID)
   Protected *TFood.TFood      ; Pointer-Variable auf Food-Element
   
   If SnakeID >0 And SnakeID <= ArraySize(Snakes())
-    With Snakes(SnakeID)           ; Snakes\Head Structure öffenen
+    With Snakes(SnakeID)           ; Snakes\Head Structure Ã¶ffenen
       
-      ; prüfen ob is sich wirklich um ein Food-Element handelt, auf welches Snake\Head bewegt wurde
+      ; prÃ¼fen ob is sich wirklich um ein Food-Element handelt, auf welches Snake\Head bewegt wurde
       If Grid(\Head\x, \Head\y)\ElementID = #eElement_TFood
-        *TFood = Grid(\Head\x, \Head\y)\ptrElement ; Pointer auf das Food-Element auf dem Grid-Daten übernehmen
+        *TFood = Grid(\Head\x, \Head\y)\ptrElement ; Pointer auf das Food-Element auf dem Grid-Daten Ã¼bernehmen
         
-        ; da wir mit dem Pointer *TFood direkt auf den Arbeitsspeicher zugreifen, müssen wir
-        ; sicherstellen, dass der Pointer gültig (also nicht 0 ist) sonst crashed unser Programm
+        ; da wir mit dem Pointer *TFood direkt auf den Arbeitsspeicher zugreifen, mÃ¼ssen wir
+        ; sicherstellen, dass der Pointer gÃ¼ltig (also nicht 0 ist) sonst crashed unser Programm
         ; mit einem Speicherzugriffsfehler
         If *TFood   ; Pointer<>0
           
-          ; hier Aktionenen, die für alle Foods identisch sind
-          Snake_AddCredits(SnakeID, *TFood\Credits) ; Credits verarbeiten; zu Snake und Player hinzufügen
+          ; hier Aktionenen, die fÃ¼r alle Foods identisch sind
+          Snake_AddCredits(SnakeID, *TFood\Credits) ; Credits verarbeiten; zu Snake und Player hinzufÃ¼gen
           PlaySound(*TFood\SoundID, #Null)          ; Sound 1x abspielen
           
-          ; hier können weiter Food abhängige Aktionen erfolgen 
+          ; hier kÃ¶nnen weiter Food abhÃ¤ngige Aktionen erfolgen 
           Select *TFood\SpriteID    ; aufsplitten welches Food
               
             Case #eSprite_Food_Ant          ; Ameise            
@@ -1384,7 +1384,7 @@ Procedure Snake_Food(SnakeID)
             Case #eSprite_Food_Bee          ; Biene  
                 \length +1 
               
-            Case #eSprite_Food_Bug          ; Käfer
+            Case #eSprite_Food_Bug          ; KÃ¤fer
                 \length +1 
                
             Case #eSprite_Food_Burger       ; Burger
@@ -1417,18 +1417,18 @@ Procedure Snake_Food(SnakeID)
             Case #eSprite_Food_Spider       ; Spinne
                 \length +1 
                 
-            Case  #eSprite_Food_Turtle      ; Schildkröte
+            Case  #eSprite_Food_Turtle      ; SchildkrÃ¶te
                 \length +1 
                 
           EndSelect
           
-          ; jetz noch Food Aus der Foods() Liste löschen
+          ; jetz noch Food Aus der Foods() Liste lÃ¶schen
           ResetList(Foods())            ; Foods(Liste()) auf Anfang
           While NextElement(Foods())    ; Alle Elemente der Liste druchlaufen
-            If Foods()\x = *TFood\x     ; wir haben das zu löschende Food-Element
+            If Foods()\x = *TFood\x     ; wir haben das zu lÃ¶schende Food-Element
               If Foods()\y = *TFood\y   ; gefunden, wenn x- und y- Koordinate
                 DeleteElement(Foods())  ; zum Food auf dem Feld passt.
-                Break                   ; Food gefunden und gelöscht While Schleife verlassen
+                Break                   ; Food gefunden und gelÃ¶scht While Schleife verlassen
               EndIf
             EndIf
           Wend
@@ -1443,10 +1443,10 @@ EndProcedure
 Procedure Snake_DetectCollision(SnakeID)
 ; ============================================================================
 ; NAME: Snake_DetectCollision
-; DESC: Kollissionsüberprüfung des Snake\Head mit Element auf dem Spielfeld
+; DESC: KollissionsÃ¼berprÃ¼fung des Snake\Head mit Element auf dem Spielfeld
 ; DESC: Wenn Snake auf Food trifft, dann Food verarbeiten
 ; DESC: Wenn Snake auf unerlaubtes Element wie Body, Head, Wall trifft,
-; DESC: dann wird killed zurückgegeben
+; DESC: dann wird killed zurÃ¼ckgegeben
 ; VAR(SnakeID): ID der Snake 
 ; RET: Sanke killed #True if killed
 ; ============================================================================
@@ -1455,25 +1455,25 @@ Procedure Snake_DetectCollision(SnakeID)
   Protected GridElement, ret
   
   If SnakeID >0 And SnakeID <= ArraySize(Snakes())
-    With Snakes(SnakeID)\Head        ; Snakes\Head Structure öffenen
+    With Snakes(SnakeID)\Head        ; Snakes\Head Structure Ã¶ffenen
       GridElement=Grid(\x, \y)\ElementID ; ElementID des betroffenen Feldes aus dem Grid-Array lesen
       
-      Select GridElement ; aufschlüsselen, mit was das Feld belegt ist
+      Select GridElement ; aufschlÃ¼sselen, mit was das Feld belegt ist
           
         ; leeres Feld
         Case #eElement_Nothing 
           
         ; Crash mit Body, Head, oder Wand  
         Case #eElement_TBody
-          ; hier können wir entscheiden, ob wir über einen Snake\Body 
-          ; hinwegkrichen können oder nicht. Wenn wir hier
-          ; killed = #False belassen, dann können wir über Snake\Bodys wandern
-          ; das könnte man evtl. noch als einstellbare Option einbauen
+          ; hier kÃ¶nnen wir entscheiden, ob wir Ã¼ber einen Snake\Body 
+          ; hinwegkrichen kÃ¶nnen oder nicht. Wenn wir hier
+          ; killed = #False belassen, dann kÃ¶nnen wir Ã¼ber Snake\Bodys wandern
+          ; das kÃ¶nnte man evtl. noch als einstellbare Option einbauen
           
-          ; killed = #True ; bei #True wäre es Ende 
+          ; killed = #True ; bei #True wÃ¤re es Ende 
           
         Case #eElement_THead
-          ; prüfen, ob auf dem Feld bereits ein Head eines anderen Snakes ist
+          ; prÃ¼fen, ob auf dem Feld bereits ein Head eines anderen Snakes ist
           ; dann sind die beiden Snakes mit dem Kopf zusammengestossen
           ret = Field_IsSnakeHead(\x,\y)   
           If ret >0 And ret <> SnakeID ; Feld ist Kopf anderern Snakes
@@ -1513,7 +1513,7 @@ Procedure Board_InitData()
 ; NAME: Board_Init
 ; DESC: Initalisieren der Spielfeld Daten
 ; DESC: Muss einemal vor dem Start des Spiels aufgerufen werden
-; DESC: um evtl. geänderte Spielfeldgröße neu anzupassen
+; DESC: um evtl. geÃ¤nderte SpielfeldgrÃ¶ÃŸe neu anzupassen
 ; ============================================================================
   
   With Board1
@@ -1537,13 +1537,13 @@ Procedure Board_Draw()
   Protected x,y     ; Feldkoordinaten
   Protected memSprite
   
-  ClearScreen(Board1\BoardColor) ; Bildschirm komplett löschen, Hintergrundfarbe schwarz
+  ClearScreen(Board1\BoardColor) ; Bildschirm komplett lÃ¶schen, Hintergrundfarbe schwarz
   
   ; ----------------------------------------------------------------------
-  ; alle Einträge im Grid-Array erst mal löschen
-  ; das erspart uns eine umständliche Löschnung einzelner Elemente,
+  ; alle EintrÃ¤ge im Grid-Array erst mal lÃ¶schen
+  ; das erspart uns eine umstÃ¤ndliche LÃ¶schnung einzelner Elemente,
   ; Wenn z.B. ein Food-Element verschwindet oder Snake weiter bewegt wird.
-  ; Die Einträge werden beim Zeichnen der Elemente wieder neu angelegt
+  ; Die EintrÃ¤ge werden beim Zeichnen der Elemente wieder neu angelegt
   ; ----------------------------------------------------------------------
 
   For I = 0 To Board1\Fields\x
@@ -1560,18 +1560,18 @@ Procedure Board_Draw()
   ; ----------------------------------------------------------------------
   For I = 1 To ArraySize(Snakes())
     
-    With Snakes(I)                    ; Snake Struktur öffen
+    With Snakes(I)                    ; Snake Struktur Ã¶ffen
       If \eSnakeType <> #eSnakeType_invisible  ; nur wenn Snake nicht unsichtbar
         
         ; Body
-        If ListSize(\Body())          ; Überprüfen, ob die Anzahl der Elemente in Body() > 0 ist
+        If ListSize(\Body())          ; ÃœberprÃ¼fen, ob die Anzahl der Elemente in Body() > 0 ist
           ResetList(\Body())          ; Body Liste auf Anfang (vor erstes Element)
           While NextElement(\Body())  ; Alle Elemnte der Liste nacheinander druchlaufen
             x = \Body()\x             ; x- Position Body-Element im Grid
             y = \Body()\y             ; y- Position Body-Element im Grid
             
-            ; Achtung: da x,y nur Feldkoordinaten für unser Grid-Raster sind, müssen
-            ; wir die FeldPosition mit der Breite,Höhe eines Feldes multiplizieren, um Pixel zu bekommen
+            ; Achtung: da x,y nur Feldkoordinaten fÃ¼r unser Grid-Raster sind, mÃ¼ssen
+            ; wir die FeldPosition mit der Breite,HÃ¶he eines Feldes multiplizieren, um Pixel zu bekommen
             If \Body()\SpriteID
               DisplayTransparentSprite(\Body()\SpriteID, x*Board1\PixelPerField\x + Board1\Origin\x, y*Board1\PixelPerField\y + Board1\Origin\y)
             Else
@@ -1598,7 +1598,7 @@ Procedure Board_Draw()
   ; Foods zeichen
   ; ----------------------------------------------------------------------
   
-  If ListSize(Foods())          ; Überprüfen, ob die Anzahl der Elemente in Foods() > 0 ist
+  If ListSize(Foods())          ; ÃœberprÃ¼fen, ob die Anzahl der Elemente in Foods() > 0 ist
     ResetList(Foods())          ; Foods Liste auf Anfang
     While NextElement(Foods())  ; Alle Elemente in Foods() nacheinander druchlaufen
       x = Foods()\x  ; x- Position Food-Element im Grid
@@ -1618,7 +1618,7 @@ Procedure Board_Draw()
       
       Foods()\LifeTime - 1
       If Foods()\LifeTime <= 0
-        ; Food-Element abgelaufen, somit aus Foods() löschen. Damit wird es nächstes mal nicht mehr gezeichnet
+        ; Food-Element abgelaufen, somit aus Foods() lÃ¶schen. Damit wird es nÃ¤chstes mal nicht mehr gezeichnet
         DeleteElement(Foods()) 
       EndIf 
     Wend
@@ -1628,7 +1628,7 @@ Procedure Board_Draw()
   ; Wall Elemente (Wand-Elemente) zeichnen
   ; ----------------------------------------------------------------------
   
-  If ListSize(Wall())   ; Überprüfen, ob die Anzahl der Elemente in Wall() > 0 ist
+  If ListSize(Wall())   ; ÃœberprÃ¼fen, ob die Anzahl der Elemente in Wall() > 0 ist
     ResetList(Wall())   ; Wall Liste Auf Anfang
     While NextElement(Wall())
       x = Wall()\x    ; x- Position Wall-Element im Grid
@@ -1672,7 +1672,7 @@ Procedure Board_Draw()
   StopDrawing()
 
   ; Tauscht die beiden Bildpuffer, so dass aktualisierte Grafikanzeigen angezeigt werden
-  ; Die Verwendung von Vordergrund- und Hintergund- Bildpuffer sorgt für flackerfreie Anzeigen.
+  ; Die Verwendung von Vordergrund- und Hintergund- Bildpuffer sorgt fÃ¼r flackerfreie Anzeigen.
  FlipBuffers() 
 
 EndProcedure
@@ -1686,11 +1686,11 @@ EndProcedure
 Procedure Foods_AddRandomFood(NoOfFoodsToAdd, MyLifeTime_ms=0)
 ; ============================================================================
 ; NAME: AddRandomFood
-; DESC: fügt ein zufällig generiertes Food-Element zur Foods()-Liste hinzu
-; DESC: das Food-Element wird nur in die Liste eingefügt, nicht aber am 
+; DESC: fÃ¼gt ein zufÃ¤llig generiertes Food-Element zur Foods()-Liste hinzu
+; DESC: das Food-Element wird nur in die Liste eingefÃ¼gt, nicht aber am 
 ; DESC: Bildschirm gezeichnet. Am Bildschirm dargestellt wir es erst
 ; DESC: wenn das Spielfeld neu gezeichnet wird!
-; VAR(NoOfFoodsToAdd) : Anzahl der Food-Elemente, die hinzugefügt werden
+; VAR(NoOfFoodsToAdd) : Anzahl der Food-Elemente, die hinzugefÃ¼gt werden
 ; VAR(MyLifeTime_ms=0)  : LifeTime FoodElement in [ms]
 ;                         Angabe Optionl. Wenn 0, dann LifeTime von Template
 ; RET: *TFood Pointer auf das neue Food-Element
@@ -1699,18 +1699,18 @@ Procedure Foods_AddRandomFood(NoOfFoodsToAdd, MyLifeTime_ms=0)
   Protected ready, ret, mem
   
   For I=1 To NoOfFoodsToAdd
-  ; Food-Elemment hinzuügen, solange Max Anzahl Foods nicht erreicht
+  ; Food-Elemment hinzuÃ¼gen, solange Max Anzahl Foods nicht erreicht
     If ListSize(Foods()) < GameSetup\MaxFoods
       
-      AddElement(Foods()) ; neues Element an Liste anhängen
+      AddElement(Foods()) ; neues Element an Liste anhÃ¤ngen
       
-      ; Zufallszahl = 10x Anazahl FoodTypen. Dadurch kann man die Auftrittshäufigkeiten
-      ; individuell einstellen. Würden wir nur 15 (=Anzahl FoodTypen) verwenden, taucht
-      ; jedes Food gleich häufig auf. Wenn wir jedoch z.B. die Cherry's als special
-      ; Credits verwenden möchten, sollte die weniger häufig auftreten
+      ; Zufallszahl = 10x Anazahl FoodTypen. Dadurch kann man die AuftrittshÃ¤ufigkeiten
+      ; individuell einstellen. WÃ¼rden wir nur 15 (=Anzahl FoodTypen) verwenden, taucht
+      ; jedes Food gleich hÃ¤ufig auf. Wenn wir jedoch z.B. die Cherry's als special
+      ; Credits verwenden mÃ¶chten, sollte die weniger hÃ¤ufig auftreten
       mem = Random(150) ; Zufallszahl generieren
       
-      ; hier kann durch einstellen der Bereiche, die Auftritthäufigkeit der einzelnen Foods eingestellt werden!
+      ; hier kann durch einstellen der Bereiche, die AuftritthÃ¤ufigkeit der einzelnen Foods eingestellt werden!
       ; Im Moment ist noch alles gleichverteilt eingestellt
       If mem < 10    : FoodID =#eFood_Ant         ; 1
       ElseIf mem<20  : FoodID =#eFood_Apple       ; 2
@@ -1743,30 +1743,30 @@ Procedure Foods_AddRandomFood(NoOfFoodsToAdd, MyLifeTime_ms=0)
         EndIf    
         
         If \xMovable
-          \direction = Random(3) ; zufällige Richtung                    
+          \direction = Random(3) ; zufÃ¤llige Richtung                    
         EndIf
         
       EndWith
       
-      ; neues Food-Element an zufälliger Position x,y platzieren
+      ; neues Food-Element an zufÃ¤lliger Position x,y platzieren
       Repeat
         ready = #True
-        x = Random(Board1\Fields\x)  ; X-Position zufällig
-        y = Random(Board1\Fields\Y)  ; Y-Position zufällig
+        x = Random(Board1\Fields\x)  ; X-Position zufÃ¤llig
+        y = Random(Board1\Fields\Y)  ; Y-Position zufÃ¤llig
         
-        ; prüfen ob Feld bereits belegt - wenn Feld nicht leer, dann ready=#False    
+        ; prÃ¼fen ob Feld bereits belegt - wenn Feld nicht leer, dann ready=#False    
         If Not Field_IsEmpty(x,y) : ready = #False : EndIf
         
         ; Mindestabstand zu Haed muss 1 freies Feld wein, deshalb die 4 Felder
         ; um das ermittelte Feld auf Head-Element pruefen
-        ; aber Achtung, wir sollten nicht versuchen über unser akuelles
-        ; Grid hinauszulesen, das könnte Schwierigkeiten geben,
+        ; aber Achtung, wir sollten nicht versuchen Ã¼ber unser akuelles
+        ; Grid hinauszulesen, das kÃ¶nnte Schwierigkeiten geben,
         ; deshalb muss die neue Position auf die Grenzen GridSize\x \y
-        ; geprüft werden
+        ; geprÃ¼ft werden
         
-        ; Field-IsSnakeHead übernimmt bereits die Prüfung auf korrekte x,y
-        ; wir müssen uns also nicht extra drum kpümmern. Wenn wir
-        ; über das Grid hinuaslesen, dann wird 0 zurückgegeben, was bedeuted
+        ; Field-IsSnakeHead Ã¼bernimmt bereits die PrÃ¼fung auf korrekte x,y
+        ; wir mÃ¼ssen uns also nicht extra drum kpÃ¼mmern. Wenn wir
+        ; Ã¼ber das Grid hinuaslesen, dann wird 0 zurÃ¼ckgegeben, was bedeuted
         ; auf dem Feld befindet sich kein Snake\Head
         If Field_IsSnakeHead(x+1,y) : ready = #False : EndIf    
         If Field_IsSnakeHead(x-1,y) : ready = #False : EndIf
@@ -1775,9 +1775,9 @@ Procedure Foods_AddRandomFood(NoOfFoodsToAdd, MyLifeTime_ms=0)
          
       Until ready ; solange wiederholen, bis Gridposition frei bzw. Abstand zu Head ok
     
-      Foods()\x = x ; ermittelte und überpüfte Zufallspostion dem Food-Element
+      Foods()\x = x ; ermittelte und Ã¼berpÃ¼fte Zufallspostion dem Food-Element
       Foods()\y = y ; zuweisen
-      ret =  @Foods() ; *TFood Pointer auf das neu erzeugte Food-Element als Rückgabewert 
+      ret =  @Foods() ; *TFood Pointer auf das neu erzeugte Food-Element als RÃ¼ckgabewert 
       ; Debug "Food on: x/y " + Str(x) + "/" + Str(y) 
     EndIf
   Next
@@ -1793,10 +1793,10 @@ Procedure Foods_Move()
 ; ============================================================================
   
   Protected newX, newY, newDir
-  Protected xMsgMoved   ; Meldung Food wurde bwegt; Rückgabewert für neu zeichenn
+  Protected xMsgMoved   ; Meldung Food wurde bwegt; RÃ¼ckgabewert fÃ¼r neu zeichenn
   Protected xCanMove = #True
   
-  ; Radar Variable - für die Belegung der 4 Nachbarfelder des Food-Elements
+  ; Radar Variable - fÃ¼r die Belegung der 4 Nachbarfelder des Food-Elements
   Protected FR.TFieldRadar ; Field Radar    - Radar aus Feldsicht
   Protected ER.TFieldRadar ; Element Radar  - Radar aus Element sicht
   
@@ -1811,8 +1811,8 @@ Procedure Foods_Move()
           ; also up,ritht,down,left
           FR\lValue = Field_Radar(\x, \y)
           ; Belegung der 4 Nachbarfelder aus Elementsicht ermitteln
-          ; also in Richtung vorwärts, rechts, links, rückwärts
-          ; das ist dan abhängig von der aktuellen Bewegunsrichtung,
+          ; also in Richtung vorwÃ¤rts, rechts, links, rÃ¼ckwÃ¤rts
+          ; das ist dan abhÃ¤ngig von der aktuellen Bewegunsrichtung,
           ; so dass man das Radar aus Feldsicht auf Elementsicht
           ; umrechnen muss.
           ER\lValue = FieldRadar_To_ElementRadar(\direction, FR)
@@ -1830,7 +1830,7 @@ Procedure Foods_Move()
             If newDir = \direction 
               xCanMove =#False      ; keine freie Bewegungsrichtung gefunden
             Else
-              \direction = newDir   ; neue Bewegungsrichtung for Food übernehmen
+              \direction = newDir   ; neue Bewegungsrichtung for Food Ã¼bernehmen
             EndIf           
           EndIf
           
@@ -1849,11 +1849,11 @@ Procedure Foods_Move()
           
           ; ----------------------------------------------------------------------
           
-          If \x <> newX Or \y <> newY        ; wenn sich Position des Food geändert hat
+          If \x <> newX Or \y <> newY        ; wenn sich Position des Food geÃ¤ndert hat
              If Field_IsEmpty(newX, newY)    ; ist Feld wirklich leer und noc auf dem Spielfeld
-                Board_DeleteFood(\x, \y)     ; Food an alter Positon löschen
+                Board_DeleteFood(\x, \y)     ; Food an alter Positon lÃ¶schen
                 ; Debug "Move: " + Str(\x) + "/" + Str(\y) + " -> " + Str(newX) + " /" + Str(NewY)
-                \x = newX                    ; neu Position auf Food übernehmen
+                \x = newX                    ; neu Position auf Food Ã¼bernehmen
                 \y = newY
                 Board_PutFood(newX, newY, Foods())  ; Food auf Board an neuer Position eintragen
                 xMsgMoved = #True             ; Meldung es hat eine Bewegung stattgefundn (=>Board neu zeichnen)
@@ -1864,7 +1864,7 @@ Procedure Foods_Move()
     Wend 
   EndIf
   
-  ProcedureReturn xMsgMoved  ; Rückgabe = #TRUE wenn Board neu gezeichnet werden muss
+  ProcedureReturn xMsgMoved  ; RÃ¼ckgabe = #TRUE wenn Board neu gezeichnet werden muss
 EndProcedure
 
 Procedure Foods_LifeTime()
@@ -1873,9 +1873,9 @@ Procedure Foods_LifeTime()
 ; DESC: Verringert die FoodLifeTime jedes in der FoodListe
 ; DESC: enthaltenen Food-Elements um 10ms, dem Basistatk der Main-Game-Loop
 ; DESC: Wenn LifeTime bei 0 angelangt ist, wird das Food-Element entfernt
-; DESC: dazu wird es einfach aus der Foods() gelöscht und somit beim
-; DESC: näschsten Zeichemvorgang nicht mehr angezeigt.  
-; RET:  #True, wennn Element gelöscht (= Befehl: neu zeichenen)
+; DESC: dazu wird es einfach aus der Foods() gelÃ¶scht und somit beim
+; DESC: nÃ¤schsten Zeichemvorgang nicht mehr angezeigt.  
+; RET:  #True, wennn Element gelÃ¶scht (= Befehl: neu zeichenen)
 ; ============================================================================
  
   ; FoodLifeTime in der Speil Haupt-Schleife im BasisZeittakt von 10ms
@@ -1890,7 +1890,7 @@ Procedure Foods_LifeTime()
         
         \LifeTime - #CTMR_BaseTime             ; -10ms
         If \LifeTime <=0          ; LifeTime abgelaufen
-          DeleteElement(Foods())  ; Food-Element löschen
+          DeleteElement(Foods())  ; Food-Element lÃ¶schen
           ret = #True
         EndIf
       EndWith
@@ -1929,7 +1929,7 @@ Procedure Keyboard()
       
       ; mit xWaitNexMove warten wir mit der Verarbeitung eines weiteren
       ; Tstendrucks, bis die letzte aktion auch gezeichnet wurde.
-      ; dies ist notwendig, da die Funktionen Tastatureingaben prüfen
+      ; dies ist notwendig, da die Funktionen Tastatureingaben prÃ¼fen
       ; und Board neu zeichnen zeitlich asychron zueiander laufen.
       If Snakes(snakeID)\xWaitNextMove = #False
         Select CtrlMode 
@@ -2082,7 +2082,7 @@ Procedure MenuWindow_Create()
     LoadAllImages()
      
     If UseGadgetList(WindowID(#wndMenu))
-      ; erstellt Bildanzeigen für die Snake-Heads am oberen Fensterrand
+      ; erstellt Bildanzeigen fÃ¼r die Snake-Heads am oberen Fensterrand
       ImageGadget(#PB_Any,0  ,10,40,40,ImageID(#eImage_head1),#PB_Image_Border)  
       ImageGadget(#PB_Any,32 ,10,40,40,ImageID(#eImage_head2),#PB_Image_Border)  
       ImageGadget(#PB_Any,64 ,10,40,40,ImageID(#eImage_head3),#PB_Image_Border)
@@ -2093,7 +2093,7 @@ Procedure MenuWindow_Create()
       ImageGadget(#PB_Any,224,10,40,40,ImageID(#eImage_head8),#PB_Image_Border)
       ImageGadget(#PB_Any,256,10,40,40,ImageID(#eImage_head9),#PB_Image_Border)
       
-      Top = 50 ; Start der Anordung der Elemente bei Höhe 46 als Y-Koordinate 
+      Top = 50 ; Start der Anordung der Elemente bei HÃ¶he 46 als Y-Koordinate 
       ; Beschriftungstexte
       TextGadget(#PB_Any,120,Top+2,90,20,"Hi Score")
       TextGadget(#PB_Any,120,Top+17,90,120,Str(HiScore))
@@ -2118,10 +2118,10 @@ Procedure MenuWindow_Create()
       TrackBarGadget(#GADGET_MaxFood, 110, Top, 80, 20, 0, 50) : Top+35
       SetGadgetState(#GADGET_MaxFood, 7)
       
-      ; erstellt, beschriftet und füllt Auswahlfeld für Farbe der Snake für Payer 2
+      ; erstellt, beschriftet und fÃ¼llt Auswahlfeld fÃ¼r Farbe der Snake fÃ¼r Payer 2
       TextGadget(#PB_Any,10,Top,80,15,"Player 1")       ; erstellt Text-Feld mit Text: "Player 1"
       ComboBoxGadget(#GADGET_ColorSelect1,10,Top+15,80,24) ; erstellt das Drop-Down Auswahlfeld
-      AddGadgetItem(#GADGET_ColorSelect1,-1,"Green")       ; ab hier wird das Drop-Down gefüllt
+      AddGadgetItem(#GADGET_ColorSelect1,-1,"Green")       ; ab hier wird das Drop-Down gefÃ¼llt
       AddGadgetItem(#GADGET_ColorSelect1,-1,"Yellow") 
       AddGadgetItem(#GADGET_ColorSelect1,-1,"Orange") 
       AddGadgetItem(#GADGET_ColorSelect1,-1,"Blue") 
@@ -2132,7 +2132,7 @@ Procedure MenuWindow_Create()
       AddGadgetItem(#GADGET_ColorSelect1,-1,"Hippy") 
       SetGadgetState(#GADGET_ColorSelect1,0)  
       
-      ; erstellt, beschriftet und füllt Auswahlfeld für Farbe der Snake für Payer 2
+      ; erstellt, beschriftet und fÃ¼llt Auswahlfeld fÃ¼r Farbe der Snake fÃ¼r Payer 2
       TextGadget(#PB_Any,120,Top,80,15,"Player 2")  
       ComboBoxGadget(#GADGET_ColorSelect2,120,Top+15,80,24) :Top + 45
       AddGadgetItem(#GADGET_ColorSelect2,-1,"Green") 
@@ -2146,7 +2146,7 @@ Procedure MenuWindow_Create()
       AddGadgetItem(#GADGET_ColorSelect2,-1,"Hippy") 
       SetGadgetState(#GADGET_ColorSelect2,1)    ; set (beginning with 1) the 1st item as active one
       
-      ; Das Auswahlfeld für den Joystick Controller
+      ; Das Auswahlfeld fÃ¼r den Joystick Controller
       TextGadget(#PB_Any,10,Top,80,15,"Controller") 
       ComboBoxGadget(#GADGET_Controller,70,Top,80,24) :Top+40
       AddGadgetItem(#GADGET_Controller,-1,"Disabled") 
@@ -2159,7 +2159,7 @@ Procedure MenuWindow_Create()
         SetGadgetState(#GADGET_Controller,0)
       EndIf 
       
-      ; erstellt, beschriftet und füllt Drop-Down für die Auswahl der Hintergrundmusik
+      ; erstellt, beschriftet und fÃ¼llt Drop-Down fÃ¼r die Auswahl der Hintergrundmusik
       TextGadget(#PB_Any,10,Top-15,80,60,"Music")
       ComboBoxGadget(#GADGET_Sound,10,Top,100,24) :Top+30
       AddGadgetItem(#GADGET_Sound,-1,"None") 
@@ -2169,13 +2169,13 @@ Procedure MenuWindow_Create()
       AddGadgetItem(#GADGET_Sound,-1,"Music D")         
       SetGadgetState(#GADGET_Sound,0)  
       
-      ; hier die Tasten für "Play" und "Exit"
+      ; hier die Tasten fÃ¼r "Play" und "Exit"
       ButtonGadget(#GADGET_Launch,   6, Top, 95, 28, "Play", #PB_Button_Default) ; Play
       ButtonGadget(#GADGET_Cancel, 111, Top, 95, 28, "Exit")                     ; Exit
       
     EndIf   
      
-    ProcedureReturn #True ; Porcedure Rückgabewert; Window wurde erstellt; o.k.
+    ProcedureReturn #True ; Porcedure RÃ¼ckgabewert; Window wurde erstellt; o.k.
   EndIf   ; OpenWindow    
   
 EndProcedure
@@ -2191,13 +2191,13 @@ Procedure StartGame()
     #wndGame
   EndEnumeration
   
-  ; Höhe der Statusbar für Anzeige von Spielstand ...
+  ; HÃ¶he der Statusbar fÃ¼r Anzeige von Spielstand ...
   
   Protected I, Event, exit=#False
   Protected killed
   Protected ScreenX, ScreenY, OriginX, OriginY
   
-  ; Daten aller Snakes löschen
+  ; Daten aller Snakes lÃ¶schen
   For I = 1 To ArraySize(Snakes())
     With Snakes(I)
       ClearList(\Body())
@@ -2247,13 +2247,13 @@ Procedure StartGame()
   Board_InitData() ; Initiale Board Daten berchen  \PixelSize\x,y
    
   If GameSetup\xFullScreen 
-    ; Bei FullScreen Anwendung müssen wir unbedingt erst
-    ; Desktopfunktionen aktivieren, da wir kein extra Fenster öffnen
-    ; und unsere FullScreen Zeichnfläche direkt über dem Desktop liegt-
-    ; Bei Ausfühung in einem Fenster ist das anders!
+    ; Bei FullScreen Anwendung mÃ¼ssen wir unbedingt erst
+    ; Desktopfunktionen aktivieren, da wir kein extra Fenster Ã¶ffnen
+    ; und unsere FullScreen ZeichnflÃ¤che direkt Ã¼ber dem Desktop liegt-
+    ; Bei AusfÃ¼hung in einem Fenster ist das anders!
     ExamineDesktops()
     
-    ; gibt die Auflösung des Bildschirms im Debug Fenster aus
+    ; gibt die AuflÃ¶sung des Bildschirms im Debug Fenster aus
     Debug "Width : " + Str(DesktopWidth(0))
     Debug "Height : "+ Str(DesktopHeight(0))
     
@@ -2269,7 +2269,7 @@ Procedure StartGame()
     OriginY = 0
     
   Else
-     ; Spielfeldgröße = Anzahl_Felder * PixelPerFild + Statusleistee_Hoehe
+     ; SpielfeldgrÃ¶ÃŸe = Anzahl_Felder * PixelPerFild + Statusleistee_Hoehe
      With Board1
       \Fields\x = 30
       \Fields\y = 30
@@ -2282,16 +2282,16 @@ Procedure StartGame()
   
   Board_InitData() ; Initiale Board Daten nochmals nachberchnen \PixelSize\x,y
   
-  ; Größe der benötigten Zeichenfläche für das Spielfeld berechnen.
+  ; GrÃ¶ÃŸe der benÃ¶tigten ZeichenflÃ¤che fÃ¼r das Spielfeld berechnen.
   ; Board1\Origin\x \y verschiebt das Spielfeld etwas, so dass
-  ; wir auf der Zeichenfläche Platz für Anzeigen bekommen
+  ; wir auf der ZeichenflÃ¤che Platz fÃ¼r Anzeigen bekommen
   ; unser eigene Statusleiste sozusagen! Darauf geben wir Spielstand usw. aus.
-  ; Die Größe der Statusleiste müssen wir zur Zeichenfläche addieren.
-  ; Alternativ könnten wir die Zeichenfläche kleiner als das Fenster machen.
+  ; Die GrÃ¶ÃŸe der Statusleiste mÃ¼ssen wir zur ZeichenflÃ¤che addieren.
+  ; Alternativ kÃ¶nnten wir die ZeichenflÃ¤che kleiner als das Fenster machen.
   ; Und die Statusleiste dann am Fenster statt am Screen platzieren.
   ; Dann muss man aber immer korrekt die Zeichenfunktionen zwichen
   ; Screen und Fenster umschalten. Bei Fullscreen ginge das dann
-  ; nicht und wir müssten uns dafür wieder extra was einfallen lassn.
+  ; nicht und wir mÃ¼ssten uns dafÃ¼r wieder extra was einfallen lassn.
   ; Es ist also einfacher die Statusleiste immer am Screen mit zu zeichnen.
   ScreenX = Board1\PixelSize\x + 2 + Board1\Origin\x ;
   ScreenY = Board1\PixelSize\y + 2 + Board1\Origin\y ; 0
@@ -2301,21 +2301,21 @@ Procedure StartGame()
   ; ----------------------------------------------------------------------
   
   ; Achtung: wir zeichnen nicht drekt auf dem Fenster, sonder legen
-  ; einen sog. Screen darüber. Screen hat den Vorteil, dass automatisch
+  ; einen sog. Screen darÃ¼ber. Screen hat den Vorteil, dass automatisch
   ; von PureBasic ein double buffering verwendet wird. D.h. 
   ; der Blidschirm (Screen) 2x erstellt. 1x als Hinergrund-Screen
   ; (in diesen wird gezeichnet) und 1x als Vordergrund-Screen (dieser
   ; wird angezeigt). Jedes mal, wenn etwas neu gezeichnet wird und
   ; angezeigt werden soll, muss FlipBuffers() verwendet werden.
   ; Dies aktualisiert den Vordergrund-Screen. Durch das double
-  ; Buffering wird zwar der doppelte Speicher benötigt, es wird
+  ; Buffering wird zwar der doppelte Speicher benÃ¶tigt, es wird
   ; jedoch flackerfrei gezeichnet. Direktes Zeichnen auf dem Window
-  ; würde gehen. Dies wäre dann aber ohne double Buffering und
-  ; evlt. störenden Flackereffekten. Für bewegte Spiele verwendet
+  ; wÃ¼rde gehen. Dies wÃ¤re dann aber ohne double Buffering und
+  ; evlt. stÃ¶renden Flackereffekten. FÃ¼r bewegte Spiele verwendet
   ; man generell Screens!
   If GameSetup\xFullScreen
-    ; bei FullScreen müssen wir nicht erst ein Window erzeugen,
-    ; um einen Screen drauf zu legen. Der Screen kann direkt über
+    ; bei FullScreen mÃ¼ssen wir nicht erst ein Window erzeugen,
+    ; um einen Screen drauf zu legen. Der Screen kann direkt Ã¼ber
     ; den kompletten Desktop gelegt werden.
     ; InitSprite() muss vorher erfolgreich aufgerufen worden sein, sonst functioniert Screen-Befehl nicht!
     If OpenScreen(DesktopWidth(0), DesktopHeight(0), 32, "Snakes")
@@ -2333,10 +2333,10 @@ Procedure StartGame()
     EndIf 
   EndIf
   
-  ; 5ms Thread Wartezeit. Das gibt auch bei langsamen Rechnern dem Betriebsystem genügend Zeit, die Fenster sauber darzustellen
+  ; 5ms Thread Wartezeit. Das gibt auch bei langsamen Rechnern dem Betriebsystem genÃ¼gend Zeit, die Fenster sauber darzustellen
   Delay (5) 
   
-  LoadAllSprites()    ; alle benötigten Sprites in den Arbeitsspeicher SpriteList() laden
+  LoadAllSprites()    ; alle benÃ¶tigten Sprites in den Arbeitsspeicher SpriteList() laden
   
   ; ----------------------------------------------------------------------
   ;- Main Event-Loop Game
@@ -2347,25 +2347,25 @@ Procedure StartGame()
   
   For I=1 To GameSetup\MaxFoods
     ; erzeugt Foods jeweils LifeTime 500ms versetzt, so dass nicht bei
-    ; allen Foods auf einmal die LifeTime abläuft. Wenn alle auf
-    ; einmal ablaufen und neu generiert werden, ist das für das Speilgeschehen störend.
+    ; allen Foods auf einmal die LifeTime ablÃ¤uft. Wenn alle auf
+    ; einmal ablaufen und neu generiert werden, ist das fÃ¼r das Speilgeschehen stÃ¶rend.
     ; Probiert es aus 
     Foods_AddRandomFood(1, I*500) ; erzeugt Foods jeweils LifeTime 500ms versetzt
     
     ; AddRamdomFood(1)  
-    ; würde alle Foods mit der Standard LifeTime erzeugen, so wie sie bei
+    ; wÃ¼rde alle Foods mit der Standard LifeTime erzeugen, so wie sie bei
     ; InitFoodTemplates()angegeben wurde
   Next
  
   Repeat 
-    ; Wir müssen hier 1x die auftretenden Fenster-Ereignisse verarbeiten.
+    ; Wir mÃ¼ssen hier 1x die auftretenden Fenster-Ereignisse verarbeiten.
     ; Dass wir mit den Ereignissen etwas machen ist nicht notwendig.
-    ; Aber sie müssen aus der sog. EventLoop entfernt werden.
+    ; Aber sie mÃ¼ssen aus der sog. EventLoop entfernt werden.
     ; Tun wir das nicht, reagiert unser Fenster nach kurzer Zeit nicht 
-    ; mehr. => überlaufende EventLoop
+    ; mehr. => Ã¼berlaufende EventLoop
     ; Achtung: WaitWindwEvent() geht hier nicht, da WaiWindowEvent()
-    ; im Gegensatz zu WindowEvent den Thread komplett anhält bis ein Ereignis auftritt.
-    ; Wir müssen aber continuierlich arbeiten.
+    ; im Gegensatz zu WindowEvent den Thread komplett anhÃ¤lt bis ein Ereignis auftritt.
+    ; Wir mÃ¼ssen aber continuierlich arbeiten.
     Event = WindowEvent() 
     
     If Event = #PB_Event_CloseWindow
@@ -2386,7 +2386,7 @@ Procedure StartGame()
       EndIf
     Else
     ; ----------------------------------------------------------------------
-    ;  Spiel läuft!
+    ;  Spiel lÃ¤uft!
     ; ----------------------------------------------------------------------
       If ElapsedMilliseconds()-StartTime >= #CTMR_BaseTime  ; nur alle 10ms 1x bearbeiten
         xDraw = #False   
@@ -2394,7 +2394,7 @@ Procedure StartGame()
         StartTime = ElapsedMilliseconds()
         ; Debug "Cycle : " + Str(CycleTime)
         
-        CounterBasedTimers() ; StandarTimer zählerbasiert im #CTMR_BaseTime=10ms Takt aufrufen
+        CounterBasedTimers() ; StandarTimer zÃ¤hlerbasiert im #CTMR_BaseTime=10ms Takt aufrufen
         
         Keyboard()      ; Tastatur und Joystick Eingaben auswerten und verarbeiten
         
@@ -2420,7 +2420,7 @@ Procedure StartGame()
         
         ; Aufruf nur etwa alle 500ms
         If CTmr(#CTMR_500ms) = 0    ; CTmr ist das Timer-Array 0=Timer abgelaufen
-          Foods_AddRandomFood(1)    ; Food Elemente hinzufügen, bis MaxFoods erreicht
+          Foods_AddRandomFood(1)    ; Food Elemente hinzufÃ¼gen, bis MaxFoods erreicht
             ; Debug "CTMR_500ms : " + Str(ElapsedMilliseconds())
           xDraw = #True
         EndIf  
@@ -2431,7 +2431,7 @@ Procedure StartGame()
           EndIf
         EndIf
         
-        If Foods_LifeTime()    ; Food Elemente Lebenszeit überwachen, entfernen
+        If Foods_LifeTime()    ; Food Elemente Lebenszeit Ã¼berwachen, entfernen
           xDraw =#True         ; Befehl Board neu zeichnen
         EndIf
         
@@ -2455,7 +2455,7 @@ Procedure StartGame()
       EndIf  
     EndIf
     
-    ; Pause aktivieren, falls [SPACE] gedrückt wurde
+    ; Pause aktivieren, falls [SPACE] gedrÃ¼ckt wurde
     ExamineKeyboard()
     If KeyboardReleased(#PB_Key_Space) ;pause
         DrawTextXY("PAUSE",ScreenX/2-50,ScreenY/2)
@@ -2463,21 +2463,21 @@ Procedure StartGame()
         GameSetup\xPaused = #True
     EndIf 
     
-    ; hier geben wird die Kontrolle für 1ms an das Betriebssytem zuück
+    ; hier geben wird die Kontrolle fÃ¼r 1ms an das Betriebssytem zuÃ¼ck
     ; unser Thread wird gestoppt. Da wir nur alles 10ms unsere
-    ; Game-Loop ausführen wollen und es reicht, das alle 1ms zu
-    ; prüfen. Damit wird die Prozessorlast stark vermindert!
-    ; würden wir das nicht tun, würde unser Programm 100% eines
+    ; Game-Loop ausfÃ¼hren wollen und es reicht, das alle 1ms zu
+    ; prÃ¼fen. Damit wird die Prozessorlast stark vermindert!
+    ; wÃ¼rden wir das nicht tun, wÃ¼rde unser Programm 100% eines
     ; Prozessor-Core einnehmen, da die Game-Loop dann immer
-    ; ausgeführt würde ohne etwas zu tun.
+    ; ausgefÃ¼hrt wÃ¼rde ohne etwas zu tun.
     Delay(1)  
     
   Until exit ; Ende Game-Loop
     
   If GameSetup\xFullScreen
-    CloseScreen()         ; bei FullScreen nur unsern Screen über dem Desktop schließen
+    CloseScreen()         ; bei FullScreen nur unsern Screen Ã¼ber dem Desktop schlieÃŸen
   Else                    
-    CloseScreen()           ; bei Ausführung im Fenster muss beides 
+    CloseScreen()           ; bei AusfÃ¼hrung im Fenster muss beides 
     CloseWindow(#wndGame)   ; gescholssen werden Screen und Fenster
   EndIf
  
@@ -2492,15 +2492,15 @@ EndProcedure
 
 Global Event, players, exit
 
-InitSprite()        ; Initialisiert die Sprite-Umgebung zur späteren Benutzung
+InitSprite()        ; Initialisiert die Sprite-Umgebung zur spÃ¤teren Benutzung
   
 If InitSound()      ; Initialisiert die Sound-Programmumgebung
   sound= 1
 EndIf 
   
-InitKeyboard()      ; Initialisiert die Programmumgebung zur späteren Benutzung der Keyboard-Befehle
+InitKeyboard()      ; Initialisiert die Programmumgebung zur spÃ¤teren Benutzung der Keyboard-Befehle
   
-If InitJoystick()   ; Initialisiert die Programmumgebung zur späteren Benutzung der Keyboard-Befehle
+If InitJoystick()   ; Initialisiert die Programmumgebung zur spÃ¤teren Benutzung der Keyboard-Befehle
   GameSetup\JoyStickExist = #True
 EndIf 
 
@@ -2521,15 +2521,15 @@ Repeat  ; Wiederholungsschleife bis Programm beendet wird
   
   Event = WaitWindowEvent()   ; wartet auf ein Window Nachrichten-Ereignis und speichert dieses in Event
   
-  Select Event                ; aufschlüseln der Ereignisse
+  Select Event                ; aufschlÃ¼seln der Ereignisse
     Case #PB_Event_Gadget     ; Ereignis, das ein Gadget betrift
       
-      Select EventGadget()    ; Gadget-Ereignis auflschlüsseln
+      Select EventGadget()    ; Gadget-Ereignis auflschlÃ¼sseln
           
         Case #GADGET_Sound    ; Das Sound Gadget (DropDown Feld Music = Auswahl des Sounds)
           
           SoundIDnew = GetGadgetState(#GADGET_Sound) + #eSound50 -1
-          ; GadGetState gibt Nr. des gweähltern Soundeintrags zurück 0=none 1=MusicA ...
+          ; GadGetState gibt Nr. des gweÃ¤hltern Soundeintrags zurÃ¼ck 0=none 1=MusicA ...
           ; da die SoundIDs in der Soundliste die IDs 50..53 haben, muss der Eintrag auf die SoundID umgerechntet werden 
           If SoundIDnew >= #eSound50
             If SoundIDnew <> SoundIDold
@@ -2539,7 +2539,7 @@ Repeat  ; Wiederholungsschleife bis Programm beendet wird
               SoundIDold = SoundIDnew
               PlaySound(SoundIDnew, #Null)
             EndIf
-          Else    ; Sound "none" wurde ausgewählt
+          Else    ; Sound "none" wurde ausgewÃ¤hlt
             If SoundIDold >= #eSound50
               StopSound(SoundIDold)
             EndIf 
@@ -2559,7 +2559,7 @@ Repeat  ; Wiederholungsschleife bis Programm beendet wird
             \MaxFoods = GetGadgetState(#GADGET_MaxFood)
           EndWith
           
-          ; Spieler 1 Einstellungen übernehmen
+          ; Spieler 1 Einstellungen Ã¼bernehmen
           With Players(1)
             \SnakeID = 1
             \Score = 0
@@ -2570,7 +2570,7 @@ Repeat  ; Wiederholungsschleife bis Programm beendet wird
             \KeysIDs\Left = #PB_Key_Left
           EndWith
           
-          ; Spieler 2 Einstellungen übernehmen
+          ; Spieler 2 Einstellungen Ã¼bernehmen
           If GameSetup\NoOfPlayers=2
             With Players(2)
               \SnakeID = 2
@@ -2669,12 +2669,3 @@ CompilerEndIf
  EndDataSection  
  
  DisableExplicit
-; IDE Options = PureBasic 6.00 LTS (Windows - x86)
-; CursorPosition = 99
-; FirstLine = 39
-; Folding = --+-----
-; Optimizer
-; EnableXP
-; Executable = Snakes_sm.exe
-; CPU = 2
-; Warnings = Display

@@ -317,7 +317,7 @@ Structure TSnake    ; Type Snake
   Head.THead        ; Defintion des Snake-Head
   SpriteID_Body.i   ; Standard SpriteID der Body Elemente (wird an die Body()-Elemente vererbt)
   Credits.i         ; Summe der Credits die der Snake aufgesammelt hat
-  xWaitNextMove.i   ; Hinweis für Tastaturabfrage: Mit nächster Tastaturabfrage warten bis nach nächtem Move 
+  xWaitNextMove.i   ; Hinweis für Tastaturabfrage: Mit nächster Tastaturabfrage warten bis nach nächstem Move 
   TmrSpeed.i        ; Timer, Zähler Speed 
   List Body.Tbody() ; Liste der Body-Elemente vom DatenTyp TBody
 EndStructure
@@ -429,7 +429,7 @@ Global NewList Foods.TFood() ; Liste mit den Food-Elementen auf dem Spielfeld
 Global NewList Wall.TWall()  ; Liste mit den Wand-Elementen
 
 Global.i NoOfPlayers, HiScore, NumberVersus, JoystickExist, playerjoystick, Paused, pausecounter
-Global.i StartSpeed, MaxFood, FoodItems, Playerwin, GameOver
+Global.i StartSpeed, MaxFood, FoodItems, Playerwin, xGameOver
 Global.i sound, SoundID, SoundIDnew, SoundIDold
 
 ;}
@@ -472,7 +472,7 @@ EndMacro
 
 Procedure CounterBasedTimers()
     ; Timer wird immer nach angegebener Zeit #NULL
-    ; Abfrage für Timer abgelaufen If NOT CTMR(#CTMR_100ms)
+    ; Abfrage für Timer abgelaufenÖ If NOT CTMR(#CTMR_100ms)
     MACRO_CTmr(CTmr(#CTMR_100ms), 100)
     MACRO_CTmr(CTmr(#CTMR_200ms), 200)
     MACRO_CTmr(CTmr(#CTMR_400ms), 400)
@@ -505,7 +505,7 @@ EndProcedure
 
 Macro Catch_Sprite_EX(SpriteID, DSptr, use4Dir)
 ; ============================================================================
-; NAME: Load_Sprite_EX
+; NAME: Catch_Sprite_EX
 ; DESC: lädt ein Sprite in 1er oder 4 Richtungen (up, right, down, left)
 ; DESC: das Sprite wird jeweils um 90° im Uhrzeigersinn gedreht
 ; VAR(SpriteID): SpriteID es up-Sprites
@@ -1603,7 +1603,7 @@ Procedure Board_Draw()
   Next 
   
   ; ----------------------------------------------------------------------
-  ; Foods zeichen
+  ; Foods zeichnen
   ; ----------------------------------------------------------------------
   
   If ListSize(Foods())          ; Überprüfen, ob die Anzahl der Elemente in Foods() > 0 ist
@@ -1994,14 +1994,25 @@ Procedure Keyboard()
   
 EndProcedure
 
-Procedure GameOver(SnakeID.i)
+Procedure GameOver()
 ; ============================================================================
-; NAME: Game Over
-; DESC: End of the Game
+; NAME: GameOver
+; DESC: Ende des Spieles
+; RET: -
+; ============================================================================
+EndProcedure
+
+Procedure CheckGameOver(SnakeID.i)
+; ============================================================================
+; NAME: CheckGameOver
+; DESC: Prueft ob das Soiel zu Ende ist
 ; VAR(SnakeID.i): ID des Snake, welcher gekilled wurde! 
 ; RET: -
 ; ============================================================================
-
+  
+  Protected ret
+  ret = #True
+  
 ;   If NoOfPlayers = 2
 ;     If Playerwin = 1
 ;       DrawTextXY("Player 1 Wins!",ScreenX/2-50,ScreenY/2-15)
@@ -2043,8 +2054,13 @@ Procedure GameOver(SnakeID.i)
 ;     WriteLong(0, NumberVersus - 1234567890)
 ;     CloseFile(0)
 ;   EndIf 
-       
+
+  
+  ProcedureReturn ret
 EndProcedure
+
+       
+
 
 Procedure MenuWindow_Create()
 ; ============================================================================
@@ -2247,7 +2263,7 @@ Procedure StartGame()
   ClearList(Foods()) ; Liste der Food-Elemnte leeren 
   ClearList(Wall())  ; Liste der Wall-Elemente leeren
   
-  GameOver = #False
+  xGameOver = #False
   
   ; ----------------------------------------------------------------------
   ;  Screen Setting
@@ -2293,7 +2309,7 @@ Procedure StartGame()
   ; Größe der benötigten Zeichenfläche für das Spielfeld berechnen.
   ; Board1\Origin\x \y verschiebt das Spielfeld etwas, so dass
   ; wir auf der Zeichenfläche Platz für Anzeigen bekommen
-  ; unser eigene Statusleiste sozusagen! Darauf geben wir Spielstand usw. aus.
+  ; unsere eigene Statusleiste sozusagen! Darauf geben wir Spielstand usw. aus.
   ; Die Größe der Statusleiste müssen wir zur Zeichenfläche addieren.
   ; Alternativ könnten wir die Zeichenfläche kleiner als das Fenster machen.
   ; Und die Statusleiste dann am Fenster statt am Screen platzieren.
@@ -2421,7 +2437,10 @@ Procedure StartGame()
                 xDraw = #True
                 
                 ; remove Snake and Check GameOver 
-                GameOver(I) ; Snake ID an GameOver übergeben, so dass Snake(I) entfernt werden kann.
+                If killed
+                  xGameOver = CheckGameOver(I) ; Snake ID an GameOver übergeben, so dass Snake(I) entfernt werden kann.
+                EndIf
+                
               EndIf
             EndIf
           EndWith
@@ -2449,7 +2468,7 @@ Procedure StartGame()
           ; Debug "Draw TimeStamp : " + Str(ElapsedMilliseconds())
         EndIf
         
-        If GameOver
+        If xGameOver
           GameOver()
           exit = #True
         EndIf
@@ -2676,9 +2695,9 @@ DataSection
  
  DisableExplicit
 ; IDE Options = PureBasic 6.00 LTS (Windows - x86)
-; CursorPosition = 2000
-; FirstLine = 1966
-; Folding = --+-----
+; CursorPosition = 2442
+; FirstLine = 2401
+; Folding = --------
 ; Optimizer
 ; EnableXP
 ; Executable = Snakes_sm.exe

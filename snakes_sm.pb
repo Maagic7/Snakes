@@ -63,11 +63,44 @@
 ;
 ; AUTHOR   :  Stefan Maag; Bavaria/Germany
 ; DATE     :  2022/02/20
-; VERSION  :  0.5
-; COMPILER :  PureBasic 5.73  www.PureBasic.com
+; VERSION  :  0.6
+; COMPILER :  PureBasic 6.40+  www.PureBasic.com
 ; ===========================================================================
 ; ChangeLog:  
 ;
+;   31.10.2026 S.Maag
+;   - Die beiden seperaten Event-Loops auf eine zusammengeführt, da Purebasic
+;     auf 2 Event-Loops sehr empfindlich reagiert.
+
+;   - Crash bei DisplayTransparentSprite) unter PureBasic 6.41 behoben
+;     Das Flag #PB_Sprite_AlphaBlending zwingend beim CatchSprite() im Makro Catch_Sprite_EX hinzugefügt
+;     TransparentSpriteColor() für alle per CopySprite() erzeugten Richtungs-Kopien nach dem 
+;     RotateSprite() neu im Videospeicher gebunden, um Transparenzverlust unter DX11/OpenGL zu verhindern
+
+;   - Geisterglieder-Kollision nach Apfel-Verkürzung in Board_Draw() behoben
+;     Schutzabfrage If \Body()\pos > \Length : Continue : EndIf eingeführt, damit geschrumpfte 
+;     Schlangenglieder keine ungültigen IDs mehr im Grid-Array hinterlassen
+
+;   - Logikfehler in StartGame() bei Spieler-Zuweisung korrigiert
+;     Abfrage auf Array-Grenzen von Snakes() repariert (\SnakeID statt fälschlicherweise \Score geprüft)
+;     Explizite Zuweisung von Snakes(2)\PlayerID = 2 hinzugefügt, um Schlangen-Aktivierung für P2 zu garantieren
+
+;   - Dynamische Joystick-Auswahl beim Spielstart (#GADGET_Launch) repariert
+;     Die harte Überschreibung von \eCtrlMode auf Tastatur entfernt; Steuermodus wird nun korrekt und
+;     dynamisch anhand der Dropdown-Auswahl (Player 1 oder Player 2) vergeben
+
+;   - Tasten-Input für 2-Spieler-Modus synchronisiert und optimiert
+;     ExamineKeyboard() in der Keyboard()-Prozedur so platziert, dass der globale Puffer für beide 
+;     Spieler lag-frei und ohne gegenseitige Blockierung der \xWaitNextMove-Flags ausgelesen wird
+
+;   - GameOver()- und CheckGameOver()-Logik komplett wiederhergestellt
+;     Zentrierte Textausgabe an dynamische Board1-Größe angepasst und Auswertung auf das neue 
+;     Players()-Array umgestellt (Ermittlung von Score und Gewinner bei 2 Player bzw. Versus Matches)
+
+;   - Daten-Löschung in Snake_Food() beschleunigt
+;     Die sequentielle Suchschleife durch die Foods()-Liste durch direkten Listensprung via 
+;     ChangeCurrentElement(Foods(), *TFood) und anschließendem sicheren DeleteElement(Foods(), 1) ersetzt
+
 ;   28.11.2022 S.Maag
 ;   - Viele Tippfehler behoben
 ;     #PS$ die vordefinierte Konstante für das Ordnertrennzeichen verwendet
@@ -192,7 +225,7 @@ Enumeration eSprite 0  Step 4   ; beginnend bei 0 - Schrittweite 4
   #eSprite_body4   ; blue
   #eSprite_body5   ; teal (türkis)
   #eSprite_body6   ; red
-  #eSprite_body7   ; purpel
+  #eSprite_body7   ; purple
   #eSprite_body8   ; ghost
   #eSprite_body9   ; hippy
     
@@ -202,7 +235,7 @@ Enumeration eSprite 0  Step 4   ; beginnend bei 0 - Schrittweite 4
   #eSprite_head4   ; blue
   #eSprite_head5   ; teal (türkis)
   #eSprite_head6   ; red
-  #eSprite_head7   ; purpel
+  #eSprite_head7   ; purple
   #eSprite_head8   ; ghost
   #eSprite_head9   ; hippy
   
@@ -260,7 +293,7 @@ EndEnumeration
 ;- ----------------------------------------------------------------------
 ;{
 
-Enumeration eElement ; IDs f+r die möglichen Element-Typen am Feld
+Enumeration eElement ; IDs für die möglichen Element-Typen am Feld
   #eElement_Nothing = 0 ; nichts
   #eElement_TFood       ; Food-Element vom Typ THead
   #eElement_THead       ; Snake-Head   vom Typ THead
@@ -270,13 +303,13 @@ Enumeration eElement ; IDs f+r die möglichen Element-Typen am Feld
 EndEnumeration
 
 Structure TPoint    ; Type Point
-  x.i               ; X-Kooridinate
+  x.i               ; X-Koordinate
   y.i               ; Y-Koordinate
 EndStructure
     
 Structure TFood ; Type Food
   x.i           ; X-Position im Spielfeld-Gitter (Pixel-Koordinaten erhält man indem man x*FieldSize\x berechnet)
-  y.i           ; X-Position im Spielfeld-Gitter 
+  y.i           ; Y-Position im Spielfeld-Gitter 
   FoodType.i    ; Food Typ [#eFood]
   SpriteID.i    ; ID des Sprite [#eSprite]
   SoundID.i     ; ID des abzuspielenden Sounds [#eSound]
@@ -309,7 +342,7 @@ Structure TWall   ; Type Wall - Wandelement
 EndStructure
 
 Structure TSnake    ; Type Snake
-  eSnakeType.i      ; Typ/Farbe der Snake (Enumeration eSnakeType) 0 = #eSnakeTye_invisible
+  eSnakeType.i      ; Type/Farbe der Snake (Enumeration eSnakeType) 0 = #eSnakeTye_invisible
   Length.i          ; Länge des Snake in Elementen
   L_Add.i           ; Anzahl Längenelemente hinzufügen: bei jedem Move dann 1 Element verlängert bis L_Add=0
   Speed.i           ; aktuelle Geschwindigkeit des Snake
@@ -322,7 +355,7 @@ Structure TSnake    ; Type Snake
   List Body.Tbody() ; Liste der Body-Elemente vom DatenTyp TBody
 EndStructure
 
-Structure TKeyIDs   ; Typ ControlKeys   Steuer-Tasten des Players
+Structure TKeyIDs   ; Type ControlKeys   Steuer-Tasten des Players
   Up.i              ; KeyID move Up
   Right.i           ; KeyID move Right  
   Down.i            ; KeyID move Down
@@ -338,7 +371,7 @@ Structure TPlayer     ; Type Player
   KeysIDs.TKeyIDs     ; Tasten Codes für Snake Steuerung
 EndStructure
 
-Structure TPkdFlds    ; Typ PackedFields: Hifs-Struktur um Radar-Feldbelegung in 4-Byte LONG zu packen 
+Structure TPkdFlds    ; Type PackedFields: Hifs-Struktur um Radar-Feldbelegung in 4-Byte LONG zu packen 
   up.a                ; Feldbelegung überhalb 
   right.a             ; Feldbelegung rechts
   down.a              ; Feldbelegung unterhalb
@@ -346,12 +379,12 @@ Structure TPkdFlds    ; Typ PackedFields: Hifs-Struktur um Radar-Feldbelegung in
 EndStructure
 
 ; Speicherung der Umgebung eines Feldes. Damit speichern wir die Umgebung um ein Feld
-; also ausghend von einem Feld(x,y), die 4 Belegungen der 4 Nachbarn up,right,down,left
-Structure TFieldRadar ; Typ FieldRadar - zur Speicherung der Umgebung eines Feldes
+; also ausgehend von einem Feld(x,y), die 4 Belegungen der 4 Nachbarn up,right,down,left
+Structure TFieldRadar ; Type FieldRadar - zur Speicherung der Umgebung eines Feldes
   StructureUnion      
     ; StructureUnion legt alle folgenden Variablendefinitionen  auf gleiche Adresse
     ; lValue und Flds sind also nur 2 verschiedene Sichten auf die gleichen Werte
-    ; 1x als 4-Byte Long und 1x als 4 einzelne Bytes. Dies benztzen wir, um 
+    ; 1x als 4-Byte Long und 1x als 4 einzelne Bytes. Dies benutzen wir, um 
     ; die Feldbelegung rund um ein Feld als Long zu übergeben und als
     ; einzelne Felder auszuwerten.
     lValue.l          ; 4-Byte-Long
@@ -360,12 +393,12 @@ Structure TFieldRadar ; Typ FieldRadar - zur Speicherung der Umgebung eines Feld
 EndStructure
 
 ; ----------------------------------------------------------------------
-;     B O A R D   D A T A  - S P I E L F E L D  D A T E N
+;     B O A R D   D A T A  -  S P I E L F E L D  D A T E N
 ; ----------------------------------------------------------------------
 
 #Board_StatusBar_Height = 32 ; Höhe der Statusbar des Spielfeldes (für Anzeigen Spielstand...)
 
-Structure TBoard        ; Typ Board
+Structure TBoard        ; Type Board
   Fields.TPoint
   PixelPerField.Tpoint
   Origin.Tpoint         ; Ursprung des Boards in Pixelkoordinaten
@@ -389,7 +422,7 @@ With Board1
 EndWith
 
 ; wird verwendet um das Element zu definieren, welches auf dem Feld plaziert ist
-Structure TBoardField  ; Typ GridField für die einzelnen Felder des Spielfeldes
+Structure TBoardField  ; Type GridField für die einzelnen Felder des Spielfeldes
   ElementID.i         ; ID des auf dem Feld platzierten Elements #eElement_TFood, #eElement_THead, ...
   ptrElement.i        ; Pointer to Element Memory, Zeiger auf den Speicherplatz des Elements
 EndStructure
@@ -401,21 +434,21 @@ Global Dim Grid.TBoardField(162,92)  ; Felder am Brett, 5K := 5120x2880 => X=160
 ;-  Game Settings
 ; ----------------------------------------------------------------------
 
-Structure TGameSetup ; Typ für Game Einstellungen
+Structure TGameSetup ; Type für Game Einstellungen
   xFullScreen.i
   SnakeType1.i
   SnakeType2.i
   StartSpeed.i
   NoOfPlayers.i
   MaxFoods.i
-  xPaused.i             ; Speiel pausieren
+  xPaused.i             ; Spiel pausieren
   JoyStickExist.i
 EndStructure
 
 Global GameSetup.TGameSetup ; Variable mit den Game-Settings
 
 ; PureBasic erstellt Arrays immer mit 0 für das erste Element, wir verwenden
-; zwecks einfacherer Zuordung nur von 1..2
+; zwecks einfacherer Zuordnung nur von 1..2
 Global Dim Snakes.TSnake(2)      ; Array für Daten von Snake 0..2
 Global Dim Players.TPlayer(2)    ; Array für Daten von Player 0..2
 ; ----------------------------------------------------------------------
@@ -429,7 +462,7 @@ Global NewList Foods.TFood() ; Liste mit den Food-Elementen auf dem Spielfeld
 Global NewList Wall.TWall()  ; Liste mit den Wand-Elementen
 
 Global.i NoOfPlayers, HiScore, NumberVersus, JoystickExist, playerjoystick, Paused, pausecounter
-Global.i StartSpeed, MaxFood, FoodItems, Playerwin, xGameOver
+Global.i StartSpeed, MaxFood, FoodItems, Playerwin, xGameOver, StartTime
 Global.i sound, SoundID, SoundIDnew, SoundIDold
 
 ;}
@@ -472,7 +505,7 @@ EndMacro
 
 Procedure CounterBasedTimers()
     ; Timer wird immer nach angegebener Zeit #NULL
-    ; Abfrage für Timer abgelaufenÖ If NOT CTMR(#CTMR_100ms)
+    ; Abfrage für Timer abgelaufen: If NOT CTMR(#CTMR_100ms)
     MACRO_CTmr(CTmr(#CTMR_100ms), 100)
     MACRO_CTmr(CTmr(#CTMR_200ms), 200)
     MACRO_CTmr(CTmr(#CTMR_400ms), 400)
@@ -484,15 +517,16 @@ Procedure CounterBasedTimers()
     MACRO_CTmr(CTmr(#CTMR_2000ms), 2000)
     MACRO_CTmr(CTmr(#CTMR_4000ms), 4000)
     MACRO_CTmr(CTmr(#CTMR_5000ms), 5000)
-    MACRO_CTmr(CTmr(#CTMR_10000ms), 10000)
-    
+    MACRO_CTmr(CTmr(#CTMR_10000ms), 10000)    
 EndProcedure
 
 Procedure DrawTextXY(text.s, x, y)
 ; ============================================================================
 ; NAME: DrawTextXY
 ; DESC: 
-; VAR(*): 
+; VAR(text): Der zu zeichnende Text 
+; VAR(x): x Koordinate in Pixel
+; VAR(y): y Koordinate in Pixel
 ; RET: -
 ; ============================================================================
   StartDrawing(ScreenOutput())
@@ -503,24 +537,35 @@ Procedure DrawTextXY(text.s, x, y)
   StopDrawing()
 EndProcedure
 
-Macro Catch_Sprite_EX(SpriteID, DSptr, use4Dir)
 ; ============================================================================
 ; NAME: Catch_Sprite_EX
-; DESC: lädt ein Sprite in 1er oder 4 Richtungen (up, right, down, left)
+; DESC: lädt ein Sprite in einer oder 4 Richtungen (up, right, down, left)
 ; DESC: das Sprite wird jeweils um 90° im Uhrzeigersinn gedreht
 ; VAR(SpriteID): SpriteID es up-Sprites
 ; VAR(DSptr): Data Section Pointer; Adresse im Datenbereich "?head1
-; VAR(use4Dir): use 4 directions; Sprite in 4 Ausrichtunge laden
+; VAR(use4Dir): use 4 directions; Sprite in 4 Ausrichtungen laden
 ; ============================================================================
+
+Macro Catch_Sprite_EX(SpriteID, DSptr, use4Dir=#False)
   
-  CatchSprite(SpriteID,   DSptr)
+  ; WICHTIG FÜR PB 6.xx: Das Flag #PB_Sprite_AlphaBlending zwingend beim Laden mitgeben!
+  CatchSprite(SpriteID, DSptr, #PB_Sprite_AlphaBlending)
+  TransparentSpriteColor(SpriteID, RGB(0, 0, 0))  
+  
   If use4Dir
-    CopySprite(SpriteID, SpriteID +1)
-    CopySprite(SpriteID, SpriteID +2)
-    CopySprite(SpriteID, SpriteID +3)
-    RotateSprite(SpriteID +1, 90, #PB_Absolute)
-    RotateSprite(SpriteID +2, 180, #PB_Absolute)
-    RotateSprite(SpriteID +3, 270, #PB_Absolute)
+    ; Beim Kopieren übernimmt das neue Sprite ab PB 6.xx das Flag automatisch
+    CopySprite(SpriteID, SpriteID + 1)
+    CopySprite(SpriteID, SpriteID + 2)
+    CopySprite(SpriteID, SpriteID + 3)
+    
+    RotateSprite(SpriteID + 1, 90, #PB_Absolute)
+    RotateSprite(SpriteID + 2, 180, #PB_Absolute)
+    RotateSprite(SpriteID + 3, 270, #PB_Absolute)
+    
+    ; Transparenz für die rotierten Kopien im Videospeicher auffrischen
+    TransparentSpriteColor(SpriteID + 1, RGB(0, 0, 0))
+    TransparentSpriteColor(SpriteID + 2, RGB(0, 0, 0))
+    TransparentSpriteColor(SpriteID + 3, RGB(0, 0, 0))
   EndIf 
 EndMacro
 
@@ -560,7 +605,7 @@ EndMacro
   Catch_Sprite_EX(#eSprite_body5, ?body5, #False)   ; teal
   Catch_Sprite_EX(#eSprite_body6, ?body6, #False)   ; red
   Catch_Sprite_EX(#eSprite_body7, ?body7, #False)   ; purple
-  Catch_Sprite_EX(#eSprite_body8, ?body8, #False)   ; gohst
+  Catch_Sprite_EX(#eSprite_body8, ?body8, #False)   ; ghost 
   Catch_Sprite_EX(#eSprite_body9, ?body9, #False)   ; hippy
   
   ; FOODs : bewegliche Foods in 4 Ausrichtungen, unbewegliche in einer Ausrichtung laden! 
@@ -605,8 +650,7 @@ Procedure LoadAllImages()
    CatchImage(#eImage_head8, ?head8)  
    CatchImage(#eImage_head9, ?head9)
    
-   CatchImage(#eImage20,?misc1)
- 
+   CatchImage(#eImage20,?misc1) 
 EndProcedure
 
 Procedure Init_FoodTemplates()
@@ -625,7 +669,7 @@ Procedure Init_FoodTemplates()
     \SpriteID = #eSprite_Food_Ant
     \FoodType = #eFood_Ant
     \Credits = 10
-    \LifeTime = 50000     ; Baisc LifeTime in [ms]
+    \LifeTime = 50000     ; Basic LifeTime in [ms]
     \SoundID = #eSound0   ; Sound der beim fangen abgespielt wird
     \xMovable = #True
   EndWith  
@@ -789,7 +833,7 @@ EndProcedure
 Procedure LoadSnakeSounds()
 ; ============================================================================
 ; NAME: LoadSnakeSounds
-; DESC: Läd die Sounds aus der DataSection in den Speicher, SoundList()
+; DESC: Lädt die Sounds aus der DataSection in den Speicher, SoundList()
 ; DESC: mit PlaySpund(#eSound0) kann der Sound dann abgespielt werden
 ; ============================================================================
   
@@ -803,7 +847,6 @@ Procedure LoadSnakeSounds()
    CatchSound(#eSound51, ?sound51) ; MusicB
    CatchSound(#eSound52, ?sound52) ; MusicC
    CatchSound(#eSound53, ?sound53) ; MusicD
-
 EndProcedure
 
 Procedure GetSpriteID_head(eSnakeType)
@@ -898,7 +941,7 @@ Procedure Field_IsSnakeHead(x, y)
 ; ============================================================================
 ; NAME: IsField_SnakeHead
 ; DESC: Prüft ob das über x,y angegebene Feld einen Snake\Head enthält
-; DESC: und gibt die zueghörige SnakeID zurück
+; DESC: und gibt die zugehörige SnakeID zurück
 ; VAR(x): X-Pos Feld in Grid()
 ; VAR(y): Y-Pos Feld in Grind()
 ; RET:   SnakeID oder 0, wenn kein Snake\Head
@@ -915,7 +958,7 @@ Procedure Field_IsSnakeHead(x, y)
       If GridElement = #eElement_THead
         *THead = Grid(x, y)\ptrElement  ; den im Grid gespeicherten Pointer des Head-Elements auf Stuktur-Pointer 
         If *THead                       ; Wenn Pointer nicht 0
-          ret = *THead\SnakeID          ; SankeID, des auf dem Feld befindlichen Head
+          ret = *THead\SnakeID          ; SnakeID, des auf dem Feld befindlichen Head
         EndIf
       EndIf
     EndIf
@@ -925,7 +968,7 @@ EndProcedure
 
 Procedure Field_IsEmpty(x,y)
 ; ============================================================================
-; NAME: IsField_Empty
+; NAME: Field_IsEmpty
 ; DESC: Prüft ob das über x,y angegebene Feld leer ist
 ; VAR(x): X-Pos Feld in Grid()
 ; VAR(y): Y-Pos Feld in Grind()
@@ -941,7 +984,7 @@ Procedure Field_IsEmpty(x,y)
       GridElement=Grid(x, y)\ElementID ; ElementID des betroffenen Feldes aus dem Grid-Array lesen
       
       If GridElement <> #eElement_Nothing ; (=0) Feld enthält kein Element, ist also leer
-        ret = #False                      ; Rückgabewert +#True für leeres Feld
+        ret = #False                      ; Rückgabewert #True für leeres Feld
       EndIf
     Else
       ret = #False
@@ -1099,7 +1142,7 @@ Procedure Field_AddPosX(Xpos, delta)
 ; NAME: Field_AddPosX
 ; DESC: delta zur Feldpostion addieren (Xpos+delta)
 ; DESC: Das Ergebnis wird auf die Spielfeldgröße begrenzt,
-; DESC: wobei es eine umslaufende Begrenzung ist. D.h. bei Überlauf geht
+; DESC: wobei es eine umlaufende Begrenzung ist. D.h. bei Überlauf geht
 ; DESC: bei 0 weiter
 ; RET : Xpos + delta [0..\Board\Fields\x] umlaufende Begrenzung
 ; ============================================================================
@@ -1152,10 +1195,10 @@ Procedure Direction_TrunRight(actDirection)
   ; wir verwenden [0..3] für die 4 Richtungen (0:up,1:right,2:down,3:left)
   ; wenn wir immer nur 1 addieren, würden wir irgendwann >3 werden, was
   ; keine gültige Richtung mehr darstellt. Wir müssen also die Richtungen
-  ; immer auf 0..3 begrenzen. Das könnte man If-Abfragen machen.
+  ; immer auf 0..3 begrenzen. Das könnte man mit If-Abfragen machen.
   ; da wir aber mit der größten Zahl 3 binär genau 2 Bits(3 = %0011) belegen,
   ; können wir durch einen binären AND Befehl (in PureBasic '&'), unseren
-  ; Wert korrekt auf 2 Bits berenzen. Das funktioniert nur, wenn unser
+  ; Wert korrekt auf 2 Bits begrenzen. Das funktioniert nur, wenn unser
   ; Zahlenbereich genau alle Bits eines Bereichs nutzt.  z.B. (3,7,15,31,63,127,255, ...)
   ; Bei anderen Zahlenbereichen muss man mit If Abfragen arbeiten
   ProcedureReturn (actDirection + 1) & 3 ; &3 begrenzt Addition auf 2 Bits [0..3]
@@ -1186,6 +1229,7 @@ Procedure Direction_TurnToFree(actDirection, *ElementRadar.TFieldRadar)
   Protected newDirection
   
   With *ElementRadar
+    newDirection = actDirection
     If \Flds\left = 0 And \Flds\right = 0
       If Random(1)
         newDirection = Direction_TrunLeft(actDirection)
@@ -1198,8 +1242,7 @@ Procedure Direction_TurnToFree(actDirection, *ElementRadar.TFieldRadar)
       newDirection = Direction_TrunRight(actDirection)
     ElseIf \Flds\down = 0
       newDirection = (actDirection+2) & 3
-    EndIf 
-      
+    EndIf      
   EndWith
   
   ProcedureReturn newDirection  
@@ -1217,8 +1260,6 @@ Procedure Snake_Move(SnakeID)
 ; DESC: Bewegt Snake um 1 Feld auf dem Brett weiter, je nach Ausrichtung
 ; DESC: des Kopfes up, right, down, left
 ; VAR(SnakeID):  Snake-ID 
-; VAR(xAddElement): #False = nur Bewegung Länge bleibt
-;                   #True  = Bewegung und Länge +1  
 ; RET: -
 ; ============================================================================
   
@@ -1231,7 +1272,7 @@ Procedure Snake_Move(SnakeID)
       \Body()\x = \Head\x       ; neues Body-Element bekommt Koordinaten
       \Body()\y = \Head\y       ; vom Kopf
       \Body()\pos = 1           ; Pos des Body-Elements, mit 1 Position Head starten, wird am Ende der Procedure um 1 weiter geschaltet
-      \Body()\SnakeID=SnakeID   ; Referenz: Zugeörigkeit zu Snake()
+      \Body()\SnakeID=SnakeID   ; Referenz: Zugeöhrigkeit zu Snake()
       \Body()\SpriteID =\SpriteID_Body  ; Standard SpriteID für die BodyElemente aus Snake-Defintion übernehmen
             
       ; je nach aktuelle Bewegungsrichtung des Kopfes, Kopf um 1 Feld weiter
@@ -1248,7 +1289,7 @@ Procedure Snake_Move(SnakeID)
                  
       ; hier werden alle Bodyelemente durchlaufen und jeweils um 1 in der Position 
       ; weitergeschoben. Unser neu erzeugtes Body-Element auf Pos=1 wird so gleich
-      ; auf Position 2 hinter dem Kiopf geschoben. 
+      ; auf Position 2 hinter dem Kopf geschoben. 
       If ListSize(\Body())
         ResetList(\Body())
         While NextElement(\Body())  ; alle BodyElemente durchlaufen
@@ -1262,7 +1303,7 @@ Procedure Snake_Move(SnakeID)
       ; jetzt müssen wir noch die Tastaturabfrage für den Snake wieder freigeben
       ; Die Tastaturabfrage wird immer gesperrt, sobald ein Richtungsbefehl 
       ; für den Snake erkannt wurde. Dies ist nötig, da die Tastatur
-      ; in sehr viel kürzeren Zeiten (ca. 10ms) abgefragt wirdm, als die
+      ; in sehr viel kürzeren Zeiten (ca. 10ms) abgefragt wird, als die
       ; Schlange am Bildschirm bewegt wird.
       \xWaitNextMove = #False ; RESET(Wartebefehl für neue Tastaturabfrage)
      
@@ -1354,7 +1395,7 @@ Procedure Snake_AddCredits(SnakeID, Credits)
   EndIf
 EndProcedure
 
-Procedure Snake_Food(SnakeID)
+Procedure Snake_Food_alt(SnakeID)
 ; ============================================================================
 ; NAME: Snake_Food
 ; DESC: Food-Element verarbeiten
@@ -1448,6 +1489,50 @@ Procedure Snake_Food(SnakeID)
 
 EndProcedure
 
+Procedure Snake_Food(SnakeID)
+  Protected *TFood.TFood      ; Pointer-Variable auf Food-Element
+  
+  If SnakeID > 0 And SnakeID <= ArraySize(Snakes())
+    With Snakes(SnakeID)           
+      
+      ; Prüfen, ob es sich um ein Food-Element handelt
+      If Grid(\Head\x, \Head\y)\ElementID = #eElement_TFood
+        *TFood = Grid(\Head\x, \Head\y)\ptrElement 
+        
+        If *TFood   ; Pointer gültig
+          
+          ; Gemeinsame Aktionen
+          Snake_AddCredits(SnakeID, *TFood\Credits) 
+          PlaySound(*TFood\SoundID, #Null)          
+          
+          ; Futterabhängige Aktion
+          Select *TFood\SpriteID    
+            Case #eSprite_Food_Apple        ; Apfel schrumpft die Schlange
+               \length - 1 
+            Default                         ; Alles andere lässt sie wachsen
+               \length + 1 
+          EndSelect
+          
+          ; HOCHPERFORMANTER FIX:
+          ; Wir springen zum Element, löschen es und übergeben die '1', 
+          ; damit der Listen-Pointer auf einem gültigen Nachfolgeelement landet!
+          ChangeCurrentElement(Foods(), *TFood)
+          DeleteElement(Foods(), 1)
+          
+          ; Grid-Eintrag sofort säubern
+          Grid(\Head\x, \Head\y)\ElementID = #eElement_Nothing
+          Grid(\Head\x, \Head\y)\ptrElement = 0
+          
+          ; WICHTIG: Liste zurücksetzen, damit nachfolgende Listendurchläufe 
+          ; in der Hauptschleife (z.B. Foods_LifeTime) ganz normal von vorne starten!
+          ResetList(Foods())
+          
+        EndIf
+      EndIf
+    EndWith
+  EndIf
+EndProcedure
+
 Procedure Snake_DetectCollision(SnakeID)
 ; ============================================================================
 ; NAME: Snake_DetectCollision
@@ -1536,154 +1621,162 @@ EndProcedure
 Procedure Board_Draw()
 ; ============================================================================
 ; NAME: Board_Draw
-; DESC: zeichnet das Spielfeld neu
-; VAR(*): 
-; RET: -
+; DESC: Zeichnet das Spielfeld, Schlangen, Foods und Wände komplett neu.
+;       Bereinigt Geisterglieder bei Verkürzung (Äpfel).
+; RET:  -
 ; ============================================================================
 
-  Protected I,J     ; Laufvariablen
-  Protected x,y     ; Feldkoordinaten
+  Protected I, J     ; Laufvariablen
+  Protected x, y     ; Feldkoordinaten
   Protected memSprite
   
-  ClearScreen(Board1\BoardColor) ; Bildschirm komplett löschen, Hintergrundfarbe schwarz
+  ClearScreen(Board1\BoardColor) ; Bildschirm komplett löschen (schwarz)
   
   ; ----------------------------------------------------------------------
-  ; alle Einträge im Grid-Array erst mal löschen
-  ; das erspart uns eine umständliche Löschung einzelner Elemente,
-  ; Wenn z.B. ein Food-Element verschwindet oder Snake weiter bewegt wird.
-  ; Die Einträge werden beim Zeichnen der Elemente wieder neu angelegt
+  ; 1. Gesamtes Grid-Array komplett zurücksetzen
+  ; Das verhindert effektiv, dass gelöschte oder geschrumpfte Schlangenglieder
+  ; als "Geister-Kollisionen" im Speicher hängen bleiben.
   ; ----------------------------------------------------------------------
-
   For I = 0 To Board1\Fields\x
     For J = 0 To Board1\Fields\y
-      With Grid(I,J)
-        \ElementID = #eElement_Nothing
-        \ptrElement = 0
-      EndWith
+      Grid(I, J)\ElementID = #eElement_Nothing
+      Grid(I, J)\ptrElement = 0
     Next
   Next
     
   ; ----------------------------------------------------------------------
-  ;  alle sichtbaren Snakes 1..max zeichnen
+  ; 2. Alle sichtbaren Snakes 1..max zeichnen
   ; ----------------------------------------------------------------------
   For I = 1 To ArraySize(Snakes())
     
-    With Snakes(I)                    ; Snake Struktur öffen
-      If \eSnakeType <> #eSnakeType_invisible  ; nur wenn Snake nicht unsichtbar
+    With Snakes(I)
+      If \eSnakeType <> #eSnakeType_invisible  ; Nur zeichnen, wenn aktiv
         
-        ; Body
-        If ListSize(\Body())          ; Überprüfen, ob die Anzahl der Elemente in Body() > 0 ist
-          ResetList(\Body())          ; Body Liste auf Anfang (vor erstes Element)
-          While NextElement(\Body())  ; Alle Elemnte der Liste nacheinander durchlaufen
-            x = \Body()\x             ; x- Position Body-Element im Grid
-            y = \Body()\y             ; y- Position Body-Element im Grid
+        ; --- BODY ZEICHNEN ---
+        If ListSize(\Body())          
+          ResetList(\Body())          
+          While NextElement(\Body())  
+            x = \Body()\x             
+            y = \Body()\y             
             
-            ; Achtung: da x,y nur Feldkoordinaten für unser Grid-Raster sind, müssen
-            ; wir die FeldPosition mit der Breite,Höhe eines Feldes multiplizieren, um Pixel zu bekommen
+            ; KORREKTUR: Falls die Schlange durch einen Apfel geschrumpft ist,
+            ; ignorieren wir Glieder, deren Position größer als die aktuelle Länge ist.
+            If \Body()\pos > \Length
+              Continue
+            EndIf
+            
             If \Body()\SpriteID
               DisplayTransparentSprite(\Body()\SpriteID, x*Board1\PixelPerField\x + Board1\Origin\x, y*Board1\PixelPerField\y + Board1\Origin\y)
             Else
               DisplayTransparentSprite(#eSprite_misc1, x*Board1\PixelPerField\x+ Board1\Origin\x, y*Board1\PixelPerField\y + Board1\Origin\y)
             EndIf
         
-            Grid(x,y)\ElementID = #eElement_TBody ; Feldbelegung mit Typ Body-Element im Grid eintragen
-            Grid(x,y)\ptrElement =  @\Body()      ; Speicheradresse (Pointer) des Body-Elements eintragen
-          Wend                                    ; @ ist in PureBasic der Befehl, die Adresse zu ermitteln
+            Grid(x,y)\ElementID = #eElement_TBody 
+            Grid(x,y)\ptrElement =  @\Body()      
+          Wend                                    
         EndIf 
         
-        ; Head
-        x = \Head\x   ; x- Position Head-Element im Grid
-        y = \Head\y   ; y- Position Head-Element im Grid
-        DisplayTransparentSprite(Snake_GetHeadSpriteID(I), x*Board1\PixelPerField\x + Board1\Origin\x, y*Board1\PixelPerField\y + Board1\Origin\y)
-        Grid(x,y)\ElementID = #eElement_THead ; Feldbelegung mit Typ THead im Grid eintragen
-        Grid(x,y)\ptrElement = @\Head         ; Speicheradresse (Pointer) des Head-Elements eintragen
+        ; --- HEAD ZEICHNEN ---
+        x = \Head\x
+        y = \Head\y
+        DisplayTransparentSprite(Snake_GetHeadSpriteID(I), x * Board1\PixelPerField\x + Board1\Origin\x, y * Board1\PixelPerField\y + Board1\Origin\y)
+        
+        Grid(x, y)\ElementID = #eElement_THead
+        Grid(x, y)\ptrElement = @\Head
       EndIf
     EndWith
     
   Next 
   
   ; ----------------------------------------------------------------------
-  ; Foods zeichnen
+  ; 3. Foods zeichnen
   ; ----------------------------------------------------------------------
-  
-  If ListSize(Foods())          ; Überprüfen, ob die Anzahl der Elemente in Foods() > 0 ist
-    ResetList(Foods())          ; Foods Liste auf Anfang
-    While NextElement(Foods())  ; Alle Elemente in Foods() nacheinander durchlaufen
-      x = Foods()\x  ; x- Position Food-Element im Grid
-      y = Foods()\y  ; y- Position Food-Element im Grid
-      
-      memSprite = Foods()\SpriteID    ; SpriteID des Foods zwischenspeichern
-      If Foods()\xMovable 
-        ; bei beweglichen Foods noch die Ausrichtung addieren
-        ; die Sprites sind in der Richtungen nacheinander angeordnet (up,right,down,left)
-        memSprite= memSprite + Foods()\direction
-        ; Debug "Sprite " + Str(Foods()\SpriteID) + " - " + Str(memSprite)
-      EndIf
-            
-      DisplayTransparentSprite(memSprite, x*Board1\PixelPerField\x + Board1\Origin\x, y*Board1\PixelPerField\y + Board1\Origin\y)
-      Grid(x,y)\ElementID = #eElement_TFood  ; Feldbelegung mit Typ TFood im Grid eintragen
-      Grid(x,y)\ptrElement = @Foods()        ; Speicheradresse (Pointer) des Body-Elements eintragen
-      
-      Foods()\LifeTime - 1
-      If Foods()\LifeTime <= 0
-        ; Food-Element abgelaufen, somit aus Foods() löschen. Damit wird es nächstes mal nicht mehr gezeichnet
-        DeleteElement(Foods()) 
-      EndIf 
-    Wend
+  If ListSize(Foods())
+    ResetList(Foods())
+    With Foods()
+      While NextElement(Foods())
+        x = \x
+        y = \y
+        
+        memSprite = \SpriteID
+        If \xMovable 
+          ; Bei wandernden Foods die Blickrichtung für die Sprite-ID addieren
+          memSprite = memSprite + \direction
+        EndIf
+              
+        DisplayTransparentSprite(memSprite, x * Board1\PixelPerField\x + Board1\Origin\x, y * Board1\PixelPerField\y + Board1\Origin\y)
+        
+        Grid(x, y)\ElementID = #eElement_TFood
+        Grid(x, y)\ptrElement = @Foods()
+        
+        ; WICHTIG: Die Lebenszeit-Verringerung wurde in die Logikschleife (Teil 13) 
+        ; ausgelagert, um ein doppeltes Abziehen (Soll & Ist) zu verhindern!
+      Wend
+    EndWith
   EndIf
   
   ; ----------------------------------------------------------------------
-  ; Wall Elemente (Wand-Elemente) zeichnen
+  ; 4. Wall-Elemente zeichnen
   ; ----------------------------------------------------------------------
-  
-  If ListSize(Wall())   ; Überprüfen, ob die Anzahl der Elemente in Wall() > 0 ist
-    ResetList(Wall())   ; Wall Liste Auf Anfang
+  If ListSize(Wall())
+    ResetList(Wall())
     While NextElement(Wall())
-      x = Wall()\x    ; x- Position Wall-Element im Grid
-      y = Wall()\y    ; y- Position Wall-Element im Grid
+      x = Wall()\x
+      y = Wall()\y
       
-      DisplayTransparentSprite(Wall()\SpriteID, x*Board1\PixelPerField\x + Board1\Origin\x, y*Board1\PixelPerField\y +Board1\Origin\y)
-      Grid(x,y)\ElementID = #eElement_TWall  ; Feldbelegung mit Typ TWall im Grid eintragen
-      Grid(x,y)\ptrElement = @Wall()         ; Speicheradresse (Pointer) des Wall-Elements eintragen
+      DisplayTransparentSprite(Wall()\SpriteID, x * Board1\PixelPerField\x + Board1\Origin\x, y * Board1\PixelPerField\y + Board1\Origin\y)
+      Grid(x, y)\ElementID = #eElement_TWall
+      Grid(x, y)\ptrElement = @Wall()
     Wend
   EndIf
   
-  DrawTextXY("P1-Score: "  + Str(Players(1)\Score),200,0) ; Score Player 1 anzeigen
-  DrawTextXY("P2-Score: "+Str(Players(2)\Score),400,0)
-  ; Hi-Score anzeigen 
-  DrawTextXY("Hi Score: " + Str(HiScore),0,0)
+  ; ----------------------------------------------------------------------
+  ; 5. UI Statusleiste live zeichnen
+  ; ----------------------------------------------------------------------
+  DrawTextXY("P1-Score: " + Str(Players(1)\Score), 200, 0)
+  If GameSetup\NoOfPlayers = 2
+    DrawTextXY("P2-Score: " + Str(Players(2)\Score), 400, 0)
+  EndIf
+  DrawTextXY("Hi Score: " + Str(HiScore), 0, 0)
   
-  ; ----------------------------------------------------------------------
-  ; Grid Hilfslinien zeichnen
-  ; ----------------------------------------------------------------------
+  ; NEU & SICHER: Wenn das Spiel pausiert ist, zeichnen wir das Wort "PAUSE" mittig auf den Screen
+  If GameSetup\xPaused
+    Protected CanvasWidth = Board1\PixelSize\x + Board1\Origin\x
+    Protected CanvasHeight = Board1\PixelSize\y + Board1\Origin\y
+    
+    StartDrawing(ScreenOutput())
+    DrawingMode(#PB_2DDrawing_Transparent)
+    FrontColor(RGB(255, 255, 0)) ; Gelber Text für die Pause
+    DrawText(CanvasWidth / 2 - TextWidth("PAUSE") / 2, CanvasHeight / 2 - 10, "PAUSE")
+    StopDrawing()
+  EndIf
 
-  StartDrawing(ScreenOutput()) ; ScreenOutput()  WindowOutput(0)
+  ; ----------------------------------------------------------------------
+  ; 6. Grid Hilfslinien zeichnen
+  ; ----------------------------------------------------------------------
+  StartDrawing(ScreenOutput())
+  
   If Board1\xShowGrid
-    For I = 0 To Board1\Fields\x +1
-      Line(I*Board1\PixelPerField\x + Board1\Origin\x, Board1\Origin\y, 1, Board1\PixelSize\y, Board1\GridColor)
+    For I = 0 To Board1\Fields\x + 1
+      Line(I * Board1\PixelPerField\x + Board1\Origin\x, Board1\Origin\y, 1, Board1\PixelSize\y, Board1\GridColor)
     Next
     
-    For I = 0 To Board1\Fields\y +1
-      Line(0, I*Board1\PixelPerField\y + Board1\Origin\y, Board1\PixelSize\x, 1, Board1\GridColor)
+    For I = 0 To Board1\Fields\y + 1
+      Line(0, I * Board1\PixelPerField\y + Board1\Origin\y, Board1\PixelSize\x, 1, Board1\GridColor)
     Next
   Else
-    ; nur die 4 Umrandungslinien zeichen
-    ; Linie links
+    ; Nur den Außenrahmen zeichnen
     Line(Board1\Origin\x, Board1\Origin\y, 1, Board1\PixelSize\y, Board1\GridColor)
-    ; Linie rects
     Line(Board1\Origin\x + Board1\PixelSize\x, Board1\Origin\y, 1, Board1\PixelSize\y, Board1\GridColor)
-    ; Linie oben
-    Line(Board1\Origin\x, Board1\Origin\y,  Board1\PixelSize\x, 1, Board1\GridColor)
-    ; Linie unten
+    Line(Board1\Origin\x, Board1\Origin\y, Board1\PixelSize\x, 1, Board1\GridColor)
     Line(Board1\Origin\x, Board1\Origin\y + Board1\PixelSize\y, Board1\PixelSize\x, 1, Board1\GridColor)
   EndIf
   StopDrawing()
 
-  ; Tauscht die beiden Bildpuffer, so dass aktualisierte Grafikanzeigen angezeigt werden
-  ; Die Verwendung von Vordergrund- und Hintergund- Bildpuffer sorgt für flackerfreie Anzeigen.
- FlipBuffers() 
+  FlipBuffers() ; Buffer flippen für flackerfreie DX11-Darstellung
 
 EndProcedure
+
 ;}
 
 ;- ----------------------------------------------------------------------
@@ -1745,7 +1838,7 @@ Procedure Foods_AddRandomFood(NoOfFoodsToAdd, MyLifeTime_ms=0)
         If MyLifeTime_ms = 0
           ; Lebenszeit Food, mit etwas Zufall ausstatten, 50% vom Startwert max. drauf
           mem = \LifeTime /3
-          \LifeTime = \LifeTime + Random(2 * mem) - mem ; Achtung Random [,Minimum] darf nicht negativ
+          \LifeTime = \LifeTime + Random(2 * mem) - mem ; Achtung Random [,Minimum] darf nicht negativ sein
         Else
           \LifeTime = MyLifeTime_ms
         EndIf    
@@ -1760,12 +1853,12 @@ Procedure Foods_AddRandomFood(NoOfFoodsToAdd, MyLifeTime_ms=0)
       Repeat
         ready = #True
         x = Random(Board1\Fields\x)  ; X-Position zufällig
-        y = Random(Board1\Fields\Y)  ; Y-Position zufällig
+        y = Random(Board1\Fields\y)  ; Y-Position zufällig
         
         ; prüfen ob Feld bereits belegt - wenn Feld nicht leer, dann ready=#False    
         If Not Field_IsEmpty(x,y) : ready = #False : EndIf
         
-        ; Mindestabstand zu Haed muss 1 freies Feld wein, deshalb die 4 Felder
+        ; Mindestabstand zu Haed muss 1 freies Feld sein, deshalb die 4 Felder
         ; um das ermittelte Feld auf Head-Element pruefen
         ; aber Achtung, wir sollten nicht versuchen über unser akuelles
         ; Grid hinauszulesen, das könnte Schwierigkeiten geben,
@@ -1886,7 +1979,7 @@ Procedure Foods_LifeTime()
 ; RET:  #True, wennn Element gelöscht (= Befehl: neu zeichnen)
 ; ============================================================================
  
-  ; FoodLifeTime in der Speil Haupt-Schleife im Basis-Zeittakt von 10ms
+  ; FoodLifeTime in der Spiel Haupt-Schleife im Basis-Zeittakt von 10ms
   ; aufrufen, damit die LifeTimes korrekt stimmen
   
   Protected ret
@@ -1913,39 +2006,34 @@ EndProcedure
 ;-                  C O N T R O L   F U N C T I O N S
 ;- ----------------------------------------------------------------------
 
+
 Procedure Keyboard()
 ; ============================================================================
 ; NAME: Keyboard
-; DESC: 
-; VAR(*): 
-; RET: -
+; DESC: Wertet Tastatur- und Joystick-Eingaben für alle Spieler synchron aus
 ; ============================================================================
-  
   Protected I, SnakeID
   Protected CtrlMode, JsID
   Protected KC.TKeyIDs  ; Bedientasten
   
+  ; WICHTIG: Den Tastaturpuffer EINMALIG für diesen Frame aktualisieren
+  ExamineKeyboard()
 
   For I = 1 To GameSetup\NoOfPlayers
     With Players(I)  
       CtrlMode = \eCtrlMode
-      SnakeID =\SnakeID
+      SnakeID = \SnakeID
       KC = \KeysIDs
     EndWith
     
     With Snakes(SnakeID)   
       
-      ; mit xWaitNexMove warten wir mit der Verarbeitung eines weiteren
-      ; Tstendrucks, bis die letzte aktion auch gezeichnet wurde.
-      ; dies ist notwendig, da die Funktionen Tastatureingaben prüfen
-      ; und Board neu zeichnen zeitlich asynchron zueinander laufen.
-      If Snakes(snakeID)\xWaitNextMove = #False
+      ; Mit xWaitNextMove warten wir, bis die letzte Aktion gezeichnet wurde
+      If \xWaitNextMove = #False
         Select CtrlMode 
             
           Case #eCtrlMode_Keyboard
-            
-            ExamineKeyboard() ; aktualisieren des Tastatur Puffers
-            
+            ; Die Abfrage nutzt jetzt den oben sauber initialisierten Puffer
             If KeyboardPushed(KC\Up) And \Head\direction <> #eDirection_down
               \Head\direction = #eDirection_up   
               \xWaitNextMove = #True
@@ -1955,13 +2043,12 @@ Procedure Keyboard()
             ElseIf KeyboardPushed(KC\Down) And \Head\direction <> #eDirection_up
               \Head\direction = #eDirection_down   
               \xWaitNextMove = #True
-            ElseIf KeyboardPushed(KC\left) And \Head\direction <> #eDirection_right
+            ElseIf KeyboardPushed(KC\Left) And \Head\direction <> #eDirection_right
               \Head\direction = #eDirection_left   
               \xWaitNextMove = #True
             EndIf
             
           Case #eCtrlMode_Joystick1, #eCtrlMode_Joystick2
-            ; hier die JoyStickID ermitteln Joystick1 hat ID=0, Joystick 2 ID=2
             If CtrlMode = #eCtrlMode_Joystick1  
               JsID = 0
             Else 
@@ -1991,78 +2078,128 @@ Procedure Keyboard()
       EndIf
     EndWith
   Next
-  
 EndProcedure
 
 Procedure GameOver()
 ; ============================================================================
 ; NAME: GameOver
-; DESC: Ende des Spieles
-; RET: -
+; DESC: Ende des Spieles. Ermittelt den Sieger, zeigt die Punkte an und
+;       speichert den Highscore ab.
+; RET:  #True
 ; ============================================================================
-EndProcedure
+  Protected Msg.s, ScoreMsg.s, FinalScore.i
+  Protected WinColor = RGB(255, 255, 255)
+  Protected CanvasWidth.i, CanvasHeight.i
+  
+  ; Berechne die Mitte der aktuellen Spielfeldfläche inklusive Ursprung
+  CanvasWidth  = Board1\PixelSize\x + Board1\Origin\x
+  CanvasHeight = Board1\PixelSize\y + Board1\Origin\y
+  
+  ; 1. Logik: Wer hat gewonnen? Auswertung über das Players()-Array
+  If GameSetup\NoOfPlayers = 2
+    If Players(1)\Score > Players(2)\Score
+      Msg = "Player 1 Wins!"
+      FinalScore = Players(1)\Score
+    ElseIf Players(2)\Score > Players(1)\Score
+      Msg = "Player 2 Wins!"
+      FinalScore = Players(2)\Score
+    Else
+      Msg = "It's a Draw!"
+      FinalScore = Players(1)\Score
+    EndIf
+    NumberVersus + 1
+  Else
+    Msg = "Game Over!"
+    FinalScore = Players(1)\Score
+  EndIf
+  
+  ScoreMsg = "Final Score: " + Str(FinalScore)
+  
+  ; 2. Anzeige zentriert auf dem Screen ausgeben
+  If StartDrawing(ScreenOutput())
+    DrawingMode(#PB_2DDrawing_Transparent)
+    
+    ; Hauptnachricht exakt mittig platzieren
+    DrawText(CanvasWidth / 2 - TextWidth(Msg) / 2, CanvasHeight / 2 - 40, Msg, WinColor)
+    DrawText(CanvasWidth / 2 - TextWidth(ScoreMsg) / 2, CanvasHeight / 2, ScoreMsg, WinColor)
+    
+    ; 3. Highscore-Check (Nur im Singleplayer-Modus sinnvoll)
+    If GameSetup\NoOfPlayers = 1 And FinalScore > HiScore
+      HiScore = FinalScore
+      Protected HiMsg.s = "A NEW HIGHSCORE!"
+      DrawText(CanvasWidth / 2 - TextWidth(HiMsg) / 2, CanvasHeight / 2 + 40, HiMsg, RGB(255, 215, 0))
+    EndIf
+    
+    StopDrawing()
+  EndIf
+  
+  FlipBuffers()
+  
+  ; 4. Hintergrundmusik stoppen, falls ein Soundkanal aktiv ist
+  If IsSound(SoundID): StopSound(SoundID): EndIf 
+  
+  ; 5. Highscore und Versus-Matches mit deiner Verschlüsselung speichern
+  If CreateFile(0, "HS.snake")
+    WriteLong(0, HiScore - 1234567890)
+    WriteLong(0, NumberVersus - 1234567890)
+    CloseFile(0)
+  EndIf
+  
+  ; Kurze Pause, damit der Spieler das Ergebnis in Ruhe lesen kann
+  Delay(2000)
+  
+  ProcedureReturn #True
+EndProcedure       
 
 Procedure CheckGameOver(SnakeID.i)
 ; ============================================================================
 ; NAME: CheckGameOver
-; DESC: Prueft ob das Soiel zu Ende ist
-; VAR(SnakeID.i): ID des Snake, welcher gekilled wurde! 
-; RET: -
+; DESC: Wird aufgerufen, wenn eine Schlange kollidiert. Setzt den Flag, 
+;       dass das Spiel beendet werden soll.
+; VAR(SnakeID): ID der gecrashten Schlange
+; RET:  #True (Signalisiert der Hauptschleife das Spielende)
 ; ============================================================================
   
-  Protected ret
-  ret = #True
+  ; Hier ermitteln wir kurz vor dem Ende, welcher Spieler verloren hat.
+  ; Wenn im 2-Spieler-Modus Schlange 1 stirbt, gewinnt automatisch Spieler 2.
+  If GameSetup\NoOfPlayers = 2
+    If SnakeID = 1
+      PlayerWin = 2
+    ElseIf SnakeID = 2
+      PlayerWin = 1
+    EndIf
+  EndIf
   
-;   If NoOfPlayers = 2
-;     If Playerwin = 1
-;       DrawTextXY("Player 1 Wins!",ScreenX/2-50,ScreenY/2-15)
-;       DrawTextXY("Score: "+Str(Score1),ScreenX/2-50,ScreenY/2)
-;     ElseIf PlayerWin = 2
-;       DrawTextXY("Player 2 Wins!",ScreenX/2-50,ScreenY/2-15)
-;       DrawTextXY("Score: "+Str(Score2),ScreenX/2-50,ScreenY/2)
-;     Else
-;       DrawTextXY("Draw!",ScreenX/2-50,ScreenY/2-15)
-;       DrawTextXY("Score: "+Str(Score1),ScreenX/2-50,ScreenY/2)
-;     EndIf 
-;   ElseIf NoOfPlayers = 1
-;     DrawTextXY("You Lose!",ScreenX/2-50,ScreenY/2-15)
-;     DrawTextXY("Score: "+Str(Score1),ScreenX/2-50,ScreenY/2)
-;   EndIf
-; 
-;   FlipBuffers()
-;   Delay(2000)
-; 
-;   If SoundID > 49
-;     StopSound(SoundID)
-;   EndIf 
-;   
-;   If NoOfPlayers = 1
-;     If Score1 > HiScore
-;       DrawTextXY("A New HighScore!",ScreenX/2-50,ScreenY/2+20)
-;       FlipBuffers()
-;       Delay(1400)
-;       HiScore = Score1
-;     EndIf 
-;   EndIf 
-;   
-;   If NoOfPlayers = 2
-;     NumberVersus + 1
-;   EndIf 
-;   
-;   If OpenFile(0, "HS.snake")
-;     WriteLong(0, HiScore-1234567890) ; a small encryption, nothing special tho
-;     WriteLong(0, NumberVersus - 1234567890)
-;     CloseFile(0)
-;   EndIf 
-
-  
-  ProcedureReturn ret
+  ProcedureReturn #True
 EndProcedure
 
-       
+ Enumeration WINDOWS 1
+    #wndMenu
+    #wndGame 
+ EndEnumeration
+  
+  Enumeration GADGETS 1
+    #GADGET_FullScreen        
+    #GADGET_Players           
+    #GADGET_Launch            
+    #GADGET_Cancel            
+    #GADGET_Controller         
+    #GADGET_ColorSelect1      
+    #GADGET_ColorSelect2      
+    #GADGET_Sound             
+    #GADGET_Speed            
+    #GADGET_MaxFood           
+   
+    ; NEU: Statische IDs für die Beschriftungen, um #PB_Any Konflikte zu lösen
+    #GADGET_TxtSpeed
+    #GADGET_TxtMinus1
+    #GADGET_TxtPlus1
+    #GADGET_TxtMaxFood
+    #GADGET_TxtMinus2
+    #GADGET_TxtPlus2
+  EndEnumeration
 
-
-Procedure MenuWindow_Create()
+Procedure MenuWindow_Create_alt()
 ; ============================================================================
 ; NAME: Menu
 ; DESC: Creates the Main Window
@@ -2072,24 +2209,9 @@ Procedure MenuWindow_Create()
   
   Protected Top
   
-  Enumeration WINDOWS
-    #wndMenu
-  EndEnumeration
-  
-  Enumeration GADGETS
-    #GADGET_FullScreen        
-    #GADGET_Players           
-    #GADGET_Launch            
-    #GADGET_Cancel            
-    #GADGET_Controller         
-    #GADGET_MaxFood           
-    #GADGET_ColorSelect1      
-    #GADGET_ColorSelect2      
-    #GADGET_Sound             
-    #GADGET_Speed            
-  EndEnumeration
-  
-  If OpenWindow(#wndMenu, 0, 0, 292, 320, "Snakes: by Stefan Maag; Kenny Cason", #PB_Window_ScreenCentered | #PB_Window_SystemMenu | #PB_Window_Invisible)
+   
+  ; KORREKTUR: #PB_Window_Invisible ENTFERNT! Das Fenster öffnet sich sofort sichtbar.
+  If OpenWindow(#wndMenu, 0, 0, 292, 320, "Snakes: by Stefan Maag; Kenny Cason", #PB_Window_ScreenCentered | #PB_Window_SystemMenu)
     
     If ReadFile(0, "HS.snake")
        HiScore =  ReadLong(0)+1234567890
@@ -2103,7 +2225,7 @@ Procedure MenuWindow_Create()
        CloseFile(0)
      EndIf 
      
-    LoadAllImages()
+ ;   LoadAllImages()
      
     If UseGadgetList(WindowID(#wndMenu))
       ; erstellt Bildanzeigen für die Snake-Heads am oberen Fensterrand
@@ -2117,30 +2239,48 @@ Procedure MenuWindow_Create()
       ImageGadget(#PB_Any,224,10,40,40,ImageID(#eImage_head8),#PB_Image_Border)
       ImageGadget(#PB_Any,256,10,40,40,ImageID(#eImage_head9),#PB_Image_Border)
       
-      Top = 50 ; Start der Anordung der Elemente bei Höhe 46 als Y-Koordinate 
-      ; Beschriftungstexte
-      TextGadget(#PB_Any,120,Top+2,90,20,"Hi Score")
-      TextGadget(#PB_Any,120,Top+17,90,120,Str(HiScore))
-      TextGadget(#PB_Any,200,Top+2,90,20,"Versus Matches")
-      TextGadget(#PB_Any,200,Top+17,90,120,Str(NumberVersus))
+       Top = 50 ; Start der Anordnung der Elemente bei Höhe 50
       
-      ; die bieden Check-Boxes
-      CheckBoxGadget(#GADGET_FullScreen, 20, Top, 75, 20, "Full Screen") : Top + 20
-      CheckBoxGadget(#GADGET_Players, 20, Top, 75, 20, "2 Player") : Top + 20
+      ; Beschriftungstexte (Höhe von 120 auf 20 Pixel korrigiert!)
+      TextGadget(#PB_Any, 120, Top + 2,  90, 20, "Hi Score")
+      TextGadget(#PB_Any, 120, Top + 20, 90, 20, Str(HiScore))       ; KORREKTUR: Height=20
       
-      TextGadget(#PB_Any,20,Top,180,20,"Mult. Player Settings") : Top + 15
+      TextGadget(#PB_Any, 200, Top + 2,  90, 20, "Versus Matches")
+      TextGadget(#PB_Any, 200, Top + 20, 90, 20, Str(NumberVersus))  ; KORREKTUR: Height=20
       
-      TextGadget(#PB_Any,20,Top+2,90,20,"Player Speed")
-      TextGadget(#PB_Any,105,Top+0,10,10,"-")
-      TextGadget(#PB_Any,190,Top+0,10,10,"+")
-      TrackBarGadget(#GADGET_Speed, 110, Top, 80, 20, 0, 35) : Top+30
+      ; Die beiden Check-Boxes (Wir starten das 'Top' unterhalb der Scores frisch)
+      Top + 45
+      
+      CheckBoxGadget(#GADGET_FullScreen, 20, Top, 75, 20, "Full Screen") : Top + 25
+      CheckBoxGadget(#GADGET_Players, 20, Top, 75, 20, "2 Player") : Top + 25
+      
+      ; 1. Überschrift für die Settings zeichnen
+      TextGadget(#PB_Any, 20, Top, 180, 20, "Mult. Player Settings")
+      Top + 25 ; Erhöht von 15 auf 25, damit der Text sich nicht mit dem Regler überschneidet!
+      
+      ; --- 2. PLAYER SPEED REGLER ---
+      ; Wir geben dem Text eine feste, schmale Breite (90), damit er nicht nach rechts ragt
+      TextGadget(#PB_Any, 20, Top + 2, 90, 20, "Player Speed")
+      
+      ; Die Symbole bekommen eine minimale Klickbox (Breite 10, Höhe 15), damit sie die TrackBar nicht überlagern
+      TextGadget(#PB_Any, 115, Top - 12, 10, 15, "-") 
+      TextGadget(#PB_Any, 185, Top - 12, 10, 15, "+")   
+      
+      ; Die TrackBar liegt nun auf einer absolut freien X/Y-Ebene
+      TrackBarGadget(#GADGET_Speed, 110, Top, 80, 20, 0, 35)
       SetGadgetState(#GADGET_Speed, 10) 
       
-      TextGadget(#PB_Any,20,Top+2,90,20,"Max Food")
-      TextGadget(#PB_Any,105,Top+0,10,10,"-")
-      TextGadget(#PB_Any,190,Top+0,10,10,"+")   
-      TrackBarGadget(#GADGET_MaxFood, 110, Top, 80, 20, 0, 50) : Top+35
+      Top + 35 ; Sauberer vertikaler Abstand zum nächsten Element
+      
+      ; --- 3. MAX FOOD REGLER ---
+      TextGadget(#PB_Any, 20, Top + 2, 90, 20, "Max Food")
+      TextGadget(#PB_Any, 115, Top - 12, 10, 15, "-") 
+      TextGadget(#PB_Any, 185, Top - 12, 10, 15, "+")   
+      
+      TrackBarGadget(#GADGET_MaxFood, 110, Top, 80, 20, 0, 50)
       SetGadgetState(#GADGET_MaxFood, 7)
+      
+      Top + 40 ; Platz machen für die nachfolgenden ComboBoxen
       
       ; erstellt, beschriftet und füllt Auswahlfeld für Farbe der Snake für Payer 2
       TextGadget(#PB_Any,10,Top,80,15,"Player 1")       ; erstellt Text-Feld mit Text: "Player 1"
@@ -2204,24 +2344,146 @@ Procedure MenuWindow_Create()
   
 EndProcedure
 
+Procedure MenuWindow_Create()
+; ============================================================================
+; NAME: MenuWindow_Create
+; DESC: Erstellt das Hauptmenü-Fenster mit allen Einstellungen.
+;       Korrgiert: Überlappende Klickboxen der Highscores und Regler-Layouts.
+; RET:  #True wenn erfolgreich, sonst #False
+; ============================================================================
+  
+  Protected Top
+    
+  ; KORREKTUR: Fenster öffnet sich sofort sichtbar unter dem korrekten Handle #wndMenu
+  If OpenWindow(#wndMenu, 0, 0, 300, 400, "Snakes: by Stefan Maag; Kenny Cason", #PB_Window_ScreenCentered | #PB_Window_SystemMenu | #PB_Window_Invisible)
+    
+    ; Highscore aus Datei laden
+    If ReadFile(0, "HS.snake")
+       HiScore = ReadLong(0) + 1234567890
+       NumberVersus = ReadLong(0) + 1234567890
+       If NumberVersus < 0 : NumberVersus = 0 : EndIf 
+       If HiScore < 0 : HiScore = 0 : EndIf 
+       CloseFile(0)
+    EndIf 
+     
+    ; Hinweis: LoadAllImages() wurde aus Performance-Gründen nach ganz oben 
+    ; in den Haupt-Startcode verlagert!
+     
+    If UseGadgetList(WindowID(#wndMenu))
+      ; Erstellt Bildanzeigen für die Snake-Heads am oberen Fensterrand
+      ImageGadget(#PB_Any, 0,   10, 40, 40, ImageID(#eImage_head1), #PB_Image_Border)  
+      ImageGadget(#PB_Any, 32,  10, 40, 40, ImageID(#eImage_head2), #PB_Image_Border)  
+      ImageGadget(#PB_Any, 64,  10, 40, 40, ImageID(#eImage_head3), #PB_Image_Border)
+      ImageGadget(#PB_Any, 96,  10, 40, 40, ImageID(#eImage_head4), #PB_Image_Border)
+      ImageGadget(#PB_Any, 128, 10, 40, 40, ImageID(#eImage_head5), #PB_Image_Border) 
+      ImageGadget(#PB_Any, 160, 10, 40, 40, ImageID(#eImage_head6), #PB_Image_Border)
+      ImageGadget(#PB_Any, 192, 10, 40, 40, ImageID(#eImage_head7), #PB_Image_Border)
+      ImageGadget(#PB_Any, 224, 10, 40, 40, ImageID(#eImage_head8), #PB_Image_Border)
+      ImageGadget(#PB_Any, 256, 10, 40, 40, ImageID(#eImage_head9), #PB_Image_Border)
+      
+      Top = 60 ; Start der Anordnung der UI-Elemente
+      
+      ; KORREKTUR: Höhenangabe von 120 auf 20 reduziert, um unsichtbare Überlappung zu killen!
+      TextGadget(#PB_Any, 120, Top + 2,  60, 20, "Hi Score")
+      TextGadget(#PB_Any, 120, Top + 18, 60, 20, Str(HiScore))
+      
+      TextGadget(#PB_Any, 200, Top + 2,  60, 20, "Versus Matches")
+      TextGadget(#PB_Any, 200, Top + 18, 60, 20, Str(NumberVersus))
+      
+      ; Kontrollkästchen (Checkboxes) platziere ich links daneben
+      CheckBoxGadget(#GADGET_FullScreen, 20, Top, 75, 20, "Full Screen") : Top + 22
+      CheckBoxGadget(#GADGET_Players, 20, Top, 75, 20, "2 Player") : Top + 25
+      
+      ; Trenner Überschrift
+      TextGadget(#PB_Any, 20, Top, 180, 20, "Mult. Player Settings") : Top + 18
+      
+      ; --- KORREKTUR SPEED-REGLER ---
+      TextGadget(#PB_Any, 20, Top + 2, 90, 20, "Player Speed")
+      ; Symbole 12 Pixel nach oben versetzt und eng begrenzt
+      TextGadget(#PB_Any, 115, Top - 12, 10, 15, "-")
+      TextGadget(#PB_Any, 185, Top - 12, 10, 15, "+")
+      TrackBarGadget(#GADGET_Speed, 110, Top, 80, 20, 0, 35) : Top + 32
+      SetGadgetState(#GADGET_Speed, 10) 
+      
+      ; --- KORREKTUR MAX-FOOD-REGLER ---
+      TextGadget(#PB_Any, 20, Top + 2, 90, 20, "Max Food")
+      TextGadget(#PB_Any, 115, Top - 12, 10, 15, "-")
+      TextGadget(#PB_Any, 185, Top - 12, 10, 15, "+")   
+      TrackBarGadget(#GADGET_MaxFood, 110, Top, 80, 20, 0, 50) : Top + 38
+      SetGadgetState(#GADGET_MaxFood, 7)
+      
+      ; Dropdowns für Farbauswahl Spieler 1 & 2
+      TextGadget(#PB_Any, 10, Top, 80, 15, "Player 1")       
+      ComboBoxGadget(#GADGET_ColorSelect1, 10, Top + 15, 80, 24) 
+      AddGadgetItem(#GADGET_ColorSelect1, -1, "Green")       
+      AddGadgetItem(#GADGET_ColorSelect1, -1, "Yellow") 
+      AddGadgetItem(#GADGET_ColorSelect1, -1, "Orange") 
+      AddGadgetItem(#GADGET_ColorSelect1, -1, "Blue") 
+      AddGadgetItem(#GADGET_ColorSelect1, -1, "Teal") 
+      AddGadgetItem(#GADGET_ColorSelect1, -1, "Red") 
+      AddGadgetItem(#GADGET_ColorSelect1, -1, "Purple")
+      AddGadgetItem(#GADGET_ColorSelect1, -1, "Ghost") 
+      AddGadgetItem(#GADGET_ColorSelect1, -1, "Hippy") 
+      SetGadgetState(#GADGET_ColorSelect1, 0)  
+      
+      TextGadget(#PB_Any, 120, Top, 80, 15, "Player 2")  
+      ComboBoxGadget(#GADGET_ColorSelect2, 120, Top + 15, 80, 24) : Top + 45
+      AddGadgetItem(#GADGET_ColorSelect2, -1, "Green") 
+      AddGadgetItem(#GADGET_ColorSelect2, -1, "Yellow") 
+      AddGadgetItem(#GADGET_ColorSelect2, -1, "Orange") 
+      AddGadgetItem(#GADGET_ColorSelect2, -1, "Blue") 
+      AddGadgetItem(#GADGET_ColorSelect2, -1, "Teal") 
+      AddGadgetItem(#GADGET_ColorSelect2, -1, "Red") 
+      AddGadgetItem(#GADGET_ColorSelect2, -1, "Purple")
+      AddGadgetItem(#GADGET_ColorSelect2, -1, "Ghost") 
+      AddGadgetItem(#GADGET_ColorSelect2, -1, "Hippy") 
+      SetGadgetState(#GADGET_ColorSelect2, 1)    
+      
+      ; Joystick Controller Dropdown
+      TextGadget(#PB_Any, 10, Top, 80, 15, "Controller") 
+      ComboBoxGadget(#GADGET_Controller, 70, Top, 80, 24) : Top + 40
+      AddGadgetItem(#GADGET_Controller, -1, "Disabled") 
+      AddGadgetItem(#GADGET_Controller, -1, "Player 1") 
+      AddGadgetItem(#GADGET_Controller, -1, "Player 2") 
+      
+      If JoystickExist
+        SetGadgetState(#GADGET_Controller, 1) 
+      Else
+        SetGadgetState(#GADGET_Controller, 0)
+      EndIf 
+      
+      ; Hintergrundmusik Dropdown
+      TextGadget(#PB_Any, 10, Top - 15, 80, 60, "Music")
+      ComboBoxGadget(#GADGET_Sound, 10, Top, 100, 24) : Top + 35
+      AddGadgetItem(#GADGET_Sound, -1, "None") 
+      AddGadgetItem(#GADGET_Sound, -1, "Music A") 
+      AddGadgetItem(#GADGET_Sound, -1, "Music B")
+      AddGadgetItem(#GADGET_Sound, -1, "Music C") 
+      AddGadgetItem(#GADGET_Sound, -1, "Music D")         
+      SetGadgetState(#GADGET_Sound, 0)  
+      
+      ; Steuerungsbuttons ganz unten platzieren
+      ButtonGadget(#GADGET_Launch,   10, Top, 95, 28, "Play", #PB_Button_Default) 
+      ButtonGadget(#GADGET_Cancel,  120, Top, 95, 28, "Exit")                     
+      
+    EndIf   
+     
+    ProcedureReturn #True 
+  EndIf   
+  
+EndProcedure
+
 Procedure StartGame()
 ; ============================================================================
 ; NAME: StartGame
-; DESC: 
-; VAR(*): 
-; RET: -
+; DESC: Initialisiert das Spielfeld, berechnet Größen, öffnet den Screen
+;       und lädt die Sprites. ENTHÄLT KEINE EVENT-SCHLEIFE MEHR!
+; RET:  -
 ; ============================================================================
-  Enumeration WINDOWS
-    #wndGame
-  EndEnumeration
   
-  ; Höhe der Statusbar für Anzeige von Spielstand ...
+  Protected I, ScreenX, ScreenY, OriginX, OriginY
   
-  Protected I, Event, exit=#False
-  Protected killed
-  Protected ScreenX, ScreenY, OriginX, OriginY
-  
-  ; Daten aller Snakes löschen
+  ; 1. Daten aller Snakes zurücksetzen
   For I = 1 To ArraySize(Snakes())
     With Snakes(I)
       ClearList(\Body())
@@ -2233,400 +2495,304 @@ Procedure StartGame()
       \SpriteID_Body = #eSprite_Nothing
       \eSnakeType = #eSnakeType_invisible
       \PlayerID = 0
-      \Speed = 35- GameSetup\StartSpeed
-      Debug "StartSpeed : " + Str (\Speed)
+      \Speed = 35 - GameSetup\StartSpeed
+      \TmrSpeed = \Speed ; Startwert für den Timer setzen
     EndWith
   Next
   
-  ; Alle aktiven Player durchlaufen und den Snakes die entsprechende PlayerID zuordnen 
+  ; Player-IDs zuordnen
   For I = 1 To GameSetup\NoOfPlayers
     With Players(I)
-      If \SnakeID > 0  And \Score <= ArraySize(Snakes())
+      If \SnakeID > 0 And \SnakeID <= ArraySize(Snakes())
         Snakes(\SnakeID)\PlayerID = I
-       EndIf
+      EndIf
     EndWith
   Next
   
   Snakes(1)\SpriteID_Body = GetSpriteID_body(GameSetup\SnakeType1)
-
-  With Players(1)
-     Snakes(\SnakeId)\eSnakeType = GameSetup\SnakeType1
-  EndWith
+  Snakes(1)\eSnakeType = GameSetup\SnakeType1
   
-  If GameSetup\NoOfPlayers =2
-    With Players(2)
-      Snakes(\SnakeId)\eSnakeType = GameSetup\SnakeType2
-      Snakes(2)\SpriteID_Body = GetSpriteID_body(GameSetup\SnakeType2)
-    EndWith
+  If GameSetup\NoOfPlayers = 2
+    Snakes(2)\SpriteID_Body = GetSpriteID_body(GameSetup\SnakeType2)
+    Snakes(2)\eSnakeType = GameSetup\SnakeType2
   EndIf
 
-  ClearList(Foods()) ; Liste der Food-Elemnte leeren 
-  ClearList(Wall())  ; Liste der Wall-Elemente leeren
-  
+  ClearList(Foods()) 
+  ClearList(Wall())  
   xGameOver = #False
   
-  ; ----------------------------------------------------------------------
-  ;  Screen Setting
-  ; ----------------------------------------------------------------------
-  Board_InitData() ; Initiale Board Daten berchen  \PixelSize\x,y
+  ; 2. Screen-Größen berechnen
+  Board_InitData() 
    
   If GameSetup\xFullScreen 
-    ; Bei FullScreen Anwendung müssen wir unbedingt erst
-    ; Desktopfunktionen aktivieren, da wir kein extra Fenster öffnen
-    ; und unsere FullScreen Zeichenfläche direkt über dem Desktop liegt-
-    ; Bei Ausfühung in einem Fenster ist das anders!
     ExamineDesktops()
-    
-    ; gibt die Auflösung des Bildschirms im Debug Fenster aus
-    Debug "Width : " + Str(DesktopWidth(0))
-    Debug "Height : "+ Str(DesktopHeight(0))
-    
     With Board1
-      \Fields\x = ((DesktopWidth(0)- \Origin\x -1) / \PixelPerField\x) -1
-      \Fields\y = ((DesktopHeight(0)- \Origin\y -1) / \PixelPerField\x) -1
-      Debug "Board Fields"
-      Debug \Fields\x
-      Debug \Fields\y
+      \Fields\x = ((DesktopWidth(0) - \Origin\x - 1) / \PixelPerField\x) - 1
+      \Fields\y = ((DesktopHeight(0) - \Origin\y - 1) / \PixelPerField\x) - 1
     EndWith
-    
     OriginX = 0
     OriginY = 0
-    
   Else
-     ; Spielfeldgröße = Anzahl_Felder * PixelPerFild + Statusleiste_Hoehe
-     With Board1
+    With Board1
       \Fields\x = 30
       \Fields\y = 30
     EndWith
-    
-    OriginX = 200   ; Fenster Ursprung relativ zur rechten oberen Ecke
-    OriginY = 200   ; des Desktop
-
+    OriginX = 200   
+    OriginY = 200   
   EndIf
   
-  Board_InitData() ; Initiale Board Daten nochmals nachberechnen \PixelSize\x,y
+  Board_InitData() 
   
-  ; Größe der benötigten Zeichenfläche für das Spielfeld berechnen.
-  ; Board1\Origin\x \y verschiebt das Spielfeld etwas, so dass
-  ; wir auf der Zeichenfläche Platz für Anzeigen bekommen
-  ; unsere eigene Statusleiste sozusagen! Darauf geben wir Spielstand usw. aus.
-  ; Die Größe der Statusleiste müssen wir zur Zeichenfläche addieren.
-  ; Alternativ könnten wir die Zeichenfläche kleiner als das Fenster machen.
-  ; Und die Statusleiste dann am Fenster statt am Screen platzieren.
-  ; Dann muss man aber immer korrekt die Zeichenfunktionen zwichen
-  ; Screen und Fenster umschalten. Bei Fullscreen ginge das dann
-  ; nicht und wir müssten uns dafür wieder extra was einfallen lassn.
-  ; Es ist also einfacher die Statusleiste immer am Screen mit zu zeichnen.
-  ScreenX = Board1\PixelSize\x + 2 + Board1\Origin\x ;
-  ScreenY = Board1\PixelSize\y + 2 + Board1\Origin\y ; 0
+  ScreenX = Board1\PixelSize\x + 2 + Board1\Origin\x 
+  ScreenY = Board1\PixelSize\y + 2 + Board1\Origin\y 
   
-  ; ----------------------------------------------------------------------
-  ;  Open Game Window
-  ; ----------------------------------------------------------------------
-  
-  ; Achtung: wir zeichnen nicht drekt auf dem Fenster, sonder legen
-  ; einen sog. Screen darüber. Screen hat den Vorteil, dass automatisch
-  ; von PureBasic ein double buffering verwendet wird. D.h. 
-  ; der Bildschirm (Screen) 2x erstellt. 1x als Hinergrund-Screen
-  ; (in diesen wird gezeichnet) und 1x als Vordergrund-Screen (dieser
-  ; wird angezeigt). Jedes mal, wenn etwas neu gezeichnet wird und
-  ; angezeigt werden soll, muss FlipBuffers() verwendet werden.
-  ; Dies aktualisiert den Vordergrund-Screen. Durch das double
-  ; Buffering wird zwar der doppelte Speicher benötigt, es wird
-  ; jedoch flackerfrei gezeichnet. Direktes Zeichnen auf dem Window
-  ; würde gehen. Dies wäre dann aber ohne double Buffering und
-  ; evlt. störenden Flackereffekten. Für bewegte Spiele verwendet
-  ; man generell Screens!
+  ; 3. Game Window / Screen öffnen
   If GameSetup\xFullScreen
-    ; bei FullScreen müssen wir nicht erst ein Window erzeugen,
-    ; um einen Screen drauf zu legen. Der Screen kann direkt über
-    ; den kompletten Desktop gelegt werden.
-    ; InitSprite() muss vorher erfolgreich aufgerufen worden sein, sonst funktioniert Screen-Befehl nicht!
     If OpenScreen(DesktopWidth(0), DesktopHeight(0), 32, "Snakes")
     Else
-      MessageRequester("Snakes","Unable To open DirectX 7.0 Or later!",#PB_MessageRequester_Error)
+      MessageRequester("Snakes", "Unable to open FullScreen!", #PB_MessageRequester_Error)
     EndIf
-
   Else
-  
-    If OpenWindow(#wndGame,0,0,ScreenX,ScreenY, "Snakes", #PB_Window_SystemMenu | #PB_Window_MinimizeGadget| #PB_Window_MaximizeGadget | #PB_Window_TitleBar | #PB_Window_SizeGadget  )
-      OpenWindowedScreen(WindowID(#wndGame),0,0,ScreenX,ScreenY,#True,0,0,#PB_Screen_NoSynchronization)
-     ; Debug "GameWindowOpen"
+    If OpenWindow(#wndGame, OriginX, OriginY, ScreenX, ScreenY, "Snakes", #PB_Window_SystemMenu | #PB_Window_MinimizeGadget)
+      OpenWindowedScreen(WindowID(#wndGame), 0, 0, ScreenX, ScreenY, #True, 0, 0, #PB_Screen_NoSynchronization)
     Else
-      MessageRequester("Snakes","Unable To open DirectX!",#PB_MessageRequester_Error)
+      MessageRequester("Snakes", "Unable to open Windowed Screen!", #PB_MessageRequester_Error)
     EndIf 
   EndIf
   
-  ; 5ms Thread Wartezeit. Das gibt auch bei langsamen Rechnern dem Betriebsystem genügend Zeit, die Fenster sauber darzustellen
-  Delay (5) 
+  Delay(5) 
+  LoadAllSprites() ; Sprites in den Speicher laden
   
-  LoadAllSprites()    ; alle benötigten Sprites in den Arbeitsspeicher SpriteList() laden
-  
-  ; ----------------------------------------------------------------------
-  ;- Main Event-Loop Game
-  ; ----------------------------------------------------------------------
-  Protected CycleTime, StartTime, xDraw
- 
-  StartTime = ElapsedMilliseconds()
-  
-  For I=1 To GameSetup\MaxFoods
-    ; erzeugt Foods jeweils LifeTime 500ms versetzt, so dass nicht bei
-    ; allen Foods auf einmal die LifeTime abläuft. Wenn alle auf
-    ; einmal ablaufen und neu generiert werden, ist das für das Speilgeschehen störend.
-    ; Probiert es aus 
-    Foods_AddRandomFood(1, I*500) ; erzeugt Foods jeweils LifeTime 500ms versetzt
-    
-    ; AddRamdomFood(1)  
-    ; würde alle Foods mit der Standard LifeTime erzeugen, so wie sie bei
-    ; InitFoodTemplates()angegeben wurde
+  ; 4. Start-Foods zeitversetzt generieren
+  For I = 1 To GameSetup\MaxFoods
+    Foods_AddRandomFood(1, I * 500) 
   Next
- 
-  Repeat 
-    ; Wir müssen hier 1x die auftretenden Fenster-Ereignisse verarbeiten.
-    ; Dass wir mit den Ereignissen etwas machen ist nicht notwendig.
-    ; Aber sie müssen aus der sog. EventLoop entfernt werden.
-    ; Tun wir das nicht, reagiert unser Fenster nach kurzer Zeit nicht 
-    ; mehr. => überlaufende EventLoop
-    ; Achtung: WaitWindwEvent() geht hier nicht, da WaitWindowEvent()
-    ; im Gegensatz zu WindowEvent den Thread komplett anhält bis ein Ereignis auftritt.
-    ; Wir müssen aber kontinuierlich arbeiten.
-    Event = WindowEvent() 
-    
-    If Event = #PB_Event_CloseWindow
-        exit = #True
-    EndIf
-      
-    If GameSetup\xPaused
-    ; ----------------------------------------------------------------------
-    ;  Spiel pausiert?
-    ; ----------------------------------------------------------------------
-      
-      ; durch aktualisieren von StartTime, setzen wir unsern 10ms Timer solange
-      ; neu, bis die Pause aufgehoben wird.
-      StartTime = ElapsedMilliseconds() 
-      ExamineKeyboard()
-      If  KeyboardReleased(#PB_Key_Space) Or KeyboardReleased(#PB_Key_Escape)
-        GameSetup\xPaused = #False
-      EndIf
-    Else
-    ; ----------------------------------------------------------------------
-    ;  Spiel läuft!
-    ; ----------------------------------------------------------------------
-      If ElapsedMilliseconds()-StartTime >= #CTMR_BaseTime  ; nur alle 10ms 1x bearbeiten
-        xDraw = #False   
-        CycleTime = ElapsedMilliseconds() - #CTMR_BaseTime
-        StartTime = ElapsedMilliseconds()
-        ; Debug "Cycle : " + Str(CycleTime)
-        
-        CounterBasedTimers() ; Standard Timer zählerbasiert im #CTMR_BaseTime=10ms Takt aufrufen
-        
-        Keyboard()      ; Tastatur und Joystick Eingaben auswerten und verarbeiten
-        
-        For I = 1 To ArraySize(Snakes())
-          With Snakes(I)
-            If \eSnakeType <> #eSnakeType_invisible
-              \TmrSpeed -1
-              
-             ; Debug "Snake " + Str(I) + " : " + Str(\TmrSpeed)
   
-              If \TmrSpeed <1
-                ; Debug "Snake " + Str(I) + " : " + Str(\TmrSpeed)
-                \TmrSpeed = \Speed
-                Snake_Move(I)
-                killed = Snake_DetectCollision(I)
-                xDraw = #True
-                
-                ; remove Snake and Check GameOver 
-                If killed
-                  xGameOver = CheckGameOver(I) ; Snake ID an GameOver übergeben, so dass Snake(I) entfernt werden kann.
-                EndIf
-                
-              EndIf
-            EndIf
-          EndWith
-        Next
-        
-        ; Aufruf nur etwa alle 500ms
-        If CTmr(#CTMR_500ms) = 0    ; CTmr ist das Timer-Array 0=Timer abgelaufen
-          Foods_AddRandomFood(1)    ; Food Elemente hinzufügen, bis MaxFoods erreicht
-            ; Debug "CTMR_500ms : " + Str(ElapsedMilliseconds())
-          xDraw = #True
-        EndIf  
-        
-        If CTmr(#CTMR_1000ms) = 0   ; CTmr ist das Timer-Array 0=Timer abgelaufen
-          If Foods_Move()           ; Foods bewegen! =#True, wenn bewegt wurde
-            xDraw = #True           ; Befehl Board neu zeichnen
-          EndIf
-        EndIf
-        
-        If Foods_LifeTime()    ; Food Elemente Lebenszeit überwachen, entfernen
-          xDraw =#True         ; Befehl Board neu zeichnen
-        EndIf
-        
-        If xDraw          ; Draw nur wenn Bewegung erfolgte
-          Board_Draw()    ; Spielfeld zeichen
-          ; Debug "Draw TimeStamp : " + Str(ElapsedMilliseconds())
-        EndIf
-        
-        If xGameOver
-          GameOver()
-          exit = #True
-        EndIf
-        
-        If KeyboardPushed(#PB_Key_Escape)
-          exit = #True
-        EndIf
-        
-        If GameSetup\xFullScreen = #False And event = #PB_Event_CloseWindow 
-          exit = #True
-        EndIf 
-      EndIf  
-    EndIf
-    
-    ; Pause aktivieren, falls [SPACE] gedrückt wurde
-    ExamineKeyboard()
-    If KeyboardReleased(#PB_Key_Space) ;pause
-        DrawTextXY("PAUSE",ScreenX/2-50,ScreenY/2)
-        FlipBuffers()
-        GameSetup\xPaused = #True
-    EndIf 
-    
-    ; hier geben wird die Kontrolle für 1ms an das Betriebssytem zuück
-    ; unser Thread wird gestoppt. Da wir nur alles 10ms unsere
-    ; Game-Loop ausführen wollen und es reicht, das alle 1ms zu
-    ; prüfen. Damit wird die Prozessorlast stark vermindert!
-    ; würden wir das nicht tun, würde unser Programm 100% eines
-    ; Prozessor-Core einnehmen, da die Game-Loop dann immer
-    ; ausgeführt würde ohne etwas zu tun.
-    Delay(1)  
-    
-  Until exit ; Ende Game-Loop
-    
-  If GameSetup\xFullScreen
-    CloseScreen()         ; bei FullScreen nur unsern Screen über dem Desktop schließen
-  Else                    
-    CloseScreen()           ; bei Ausführung im Fenster muss beides 
-    CloseWindow(#wndGame)   ; geschlossen werden Screen und Fenster
-  EndIf
+  ; 5. Globalen Start-Timer für die Logik initialisieren
+  ; StartTime = ElapsedMilliseconds()
+  StartTime = 0
  
+  ; WICHTIG: Die Prozedur endet hier! Sie gibt die Kontrolle sofort 
+  ; an den zentralen "START Programmcode" zurück.
 EndProcedure
 
-; 
 ; ****************************************************************************
 ;-            S T A R T   P R O G R A M M C O D E 
 ; ****************************************************************************
 ;{
-; von hier aus startet das Programm
+; Von hier aus startet das Programm
 
 Global Event, players, exit
+Global GameActive = #False
 
-InitSprite()        ; Initialisiert die Sprite-Umgebung zur späteren Benutzung
-  
-If InitSound()      ; Initialisiert die Sound-Programmumgebung
-  sound= 1
-EndIf 
-  
-InitKeyboard()      ; Initialisiert die Programmumgebung zur späteren Benutzung der Keyboard-Befehle
-  
-If InitJoystick()   ; Initialisiert die Programmumgebung zur späteren Benutzung der Keyboard-Befehle
-  GameSetup\JoyStickExist = #True
-EndIf 
+InitSprite()        
+If InitSound(): sound = 1: EndIf 
+InitKeyboard()      
+If InitJoystick(): GameSetup\JoyStickExist = #True: EndIf 
 
-LoadSnakeSounds() ; Sounddateien in Arbeitsspeicher (Sound-Liste) laden
+LoadAllImages()     
+LoadSnakeSounds()   
 Init_FoodTemplates()
 
 #MenuAction_StartGame = 1
 #MenuAction_EndProgram = 2
 
+; Fenster-Erstellung prüfen (Nutzt das korrekte #wndMenu)
 If MenuWindow_Create()
   HideWindow(#wndMenu, #False)
 Else
   End
 EndIf
 
+; Lokale Variablen für das Takt-Timing der Engine
+Define I, killed, xDraw
+Define CycleTime
+
 exit = #False
-Repeat  ; Wiederholungsschleife bis Programm beendet wird
+Repeat
   
-  Event = WaitWindowEvent()   ; wartet auf ein Window Nachrichten-Ereignis und speichert dieses in Event
-  
-  Select Event                ; aufschlüsseln der Ereignisse
-    Case #PB_Event_Gadget     ; Ereignis, das ein Gadget betrifft
-      
-      Select EventGadget()    ; Gadget-Ereignis aufschlüsseln
-          
-        Case #GADGET_Sound    ; Das Sound Gadget (DropDown Feld Music = Auswahl des Sounds)
-          
-          SoundIDnew = GetGadgetState(#GADGET_Sound) + #eSound50 -1
-          ; GadGetState gibt Nr. des gewählten Soundeintrags zurück 0=none 1=MusicA ...
-          ; da die SoundIDs in der Soundliste die IDs 50..53 haben, muss der Eintrag auf die SoundID umgerechntet werden 
-          If SoundIDnew >= #eSound50
-            If SoundIDnew <> SoundIDold
-              If SoundIDold >= #eSound50
-                StopSound(SoundIDold)
-              EndIf 
-              SoundIDold = SoundIDnew
-              PlaySound(SoundIDnew, #Null)
-            EndIf
-          Else    ; Sound "none" wurde ausgewählt
-            If SoundIDold >= #eSound50
-              StopSound(SoundIDold)
-            EndIf 
-          EndIf 
-          
-        Case #GADGET_Launch
-          With GameSetup
-            \xFullScreen = GetGadgetState(#GADGET_FullScreen)
-            \StartSpeed = GetGadgetState(#GADGET_Speed)     
+  ; 1. WENN DAS SPIEL NICHT LÄUFT: Reines Menü-Handling
+  If GameActive = #False
+    Event = WaitWindowEvent()
+    
+    Select Event
+      Case #PB_Event_Gadget
+        Select EventGadget()
             
-            players =    GetGadgetState(#GADGET_Players)
-            If players : \NoOfPlayers = 2 : Else : \NoOfPlayers = 1 : EndIf 
- 
-            \SnakeType1 = GetGadgetState(#GADGET_ColorSelect1) + 1  ; Returns selctecd Index 0..8 + 1 => #eSnakeType_green .. #eSnakeType_Hippy => 1..9
-            \SnakeType2 = GetGadgetState(#GADGET_ColorSelect2) + 1  ;
-            playerjoystick = GetGadgetState(#GADGET_Controller) 
-            \MaxFoods = GetGadgetState(#GADGET_MaxFood)
-          EndWith
-          
-          ; Spieler 1 Einstellungen übernehmen
-          With Players(1)
-            \SnakeID = 1
-            \Score = 0
-            \eCtrlMode= #eCtrlMode_Keyboard
-            \KeysIDs\Up = #PB_Key_Up
-            \KeysIDs\Right = #PB_Key_Right
-            \KeysIDs\Down = #PB_Key_Down
-            \KeysIDs\Left = #PB_Key_Left
-          EndWith
-          
-          ; Spieler 2 Einstellungen übernehmen
-          If GameSetup\NoOfPlayers=2
-            With Players(2)
-              \SnakeID = 2
-              \Score = 0
-              \eCtrlMode = #eCtrlMode_Keyboard
-              \KeysIDs\Up = #PB_Key_W
-              \KeysIDs\Right = #PB_Key_D
-              \KeysIDs\Down = #PB_Key_S
-              \KeysIDs\Left = #PB_Key_A
+          Case #GADGET_Speed
+            ; AKTIVIERUNG: Liest den aktuellen Zustand live aus.
+            ; Das leert die Windows-Queue und gibt die grafische Schiebe-Animation frei!
+            GameSetup\StartSpeed = GetGadgetState(#GADGET_Speed)
+            Debug "Speed Gadget"
+            
+          Case #GADGET_MaxFood
+            ; AKTIVIERUNG: Liest den aktuellen Zustand live aus.
+            ; Das leert die Windows-Queue und gibt die grafische Schiebe-Animation frei!
+            GameSetup\MaxFoods = GetGadgetState(#GADGET_MaxFood)
+           Debug "MaxFood Gadget"
+            
+          Case #GADGET_Sound
+            SoundIDnew = GetGadgetState(#GADGET_Sound) + #eSound50 - 1
+            If SoundIDnew >= #eSound50
+              If SoundIDnew <> SoundIDold
+                If SoundIDold >= #eSound50: StopSound(SoundIDold): EndIf 
+                SoundIDold = SoundIDnew
+                PlaySound(SoundIDnew, #Null)
+              EndIf
+            Else
+              If SoundIDold >= #eSound50: StopSound(SoundIDold): EndIf 
+            EndIf 
+            
+          Case #GADGET_Launch
+            ; Werte aus dem Menü final in das Setup-Struktur mappen
+            With GameSetup
+              \xFullScreen = GetGadgetState(#GADGET_FullScreen)
+              \StartSpeed = GetGadgetState(#GADGET_Speed)     
+              players = GetGadgetState(#GADGET_Players)
+              If players : \NoOfPlayers = 2 : Else : \NoOfPlayers = 1 : EndIf 
+              \SnakeType1 = GetGadgetState(#GADGET_ColorSelect1) + 1  
+              \SnakeType2 = GetGadgetState(#GADGET_ColorSelect2) + 1  
+              playerjoystick = GetGadgetState(#GADGET_Controller) 
+              \MaxFoods = GetGadgetState(#GADGET_MaxFood)
             EndWith
-          EndIf
+            
+            ; Spieler 1 initialisieren
+            With Players(1)
+              \SnakeID = 1: \Score = 0: \eCtrlMode = #eCtrlMode_Keyboard
+              \KeysIDs\Up = #PB_Key_Up: \KeysIDs\Right = #PB_Key_Right
+              \KeysIDs\Down = #PB_Key_Down: \KeysIDs\Left = #PB_Key_Left
+            EndWith
+            
+            ; Spieler 2 initialisieren
+            If GameSetup\NoOfPlayers = 2
+              With Players(2)
+                \SnakeID = 2: \Score = 0: \eCtrlMode = #eCtrlMode_Keyboard
+                \KeysIDs\Up = #PB_Key_W: \KeysIDs\Right = #PB_Key_D
+                \KeysIDs\Down = #PB_Key_S: \KeysIDs\Left = #PB_Key_A
+              EndWith
+            EndIf
+          
+            HideWindow(#wndMenu, #True)  ; Menü ausblenden
+            StartGame()                  ; Screen öffnen & initialisieren (Teil 17)
+            GameActive = #True           ; Engine auf Spielmodus umschalten
+            StartTime = ElapsedMilliseconds() 
+            xDraw = #True                
+            
+          Case #GADGET_Cancel
+            exit = #MenuAction_EndProgram
+        EndSelect
         
-          HideWindow(#wndMenu, #True)  ; Menu Window ausblenden, verstecken
-          StartGame()                  ; Neues Spiel starten     
-          HideWindow(#wndMenu, #False) ; nach Spielende Menu-Window wieder anzeigen 
-          
-        Case #GADGET_Cancel
-          exit = #MenuAction_EndProgram
-          
-      EndSelect
+      Case #PB_Event_CloseWindow
+        exit = #True
+    EndSelect
+  EndIf
+  
+  ; 2. WENN DAS SPIEL LÄUFT: Echtzeit-Engine
+  If GameActive = #True
+    Event = WindowEvent() 
+    
+    If Event = #PB_Event_CloseWindow
+      xGameOver = #True
+    EndIf
+    
+    ; --- PAUSE LOGIK ---
+    ExamineKeyboard()
+    If KeyboardReleased(#PB_Key_Space)
+      GameSetup\xPaused = #True
+      DrawTextXY("PAUSE", (Board1\PixelSize\x + Board1\Origin\x)/2 - 50, (Board1\PixelSize\y + Board1\Origin\y)/2)
+      FlipBuffers()
       
-    Case #PB_Event_CloseWindow
-      exit = #True
-  EndSelect
+      Repeat
+        Delay(10)
+        ExamineKeyboard()
+      Until KeyboardReleased(#PB_Key_Space) Or KeyboardReleased(#PB_Key_Escape)
+      
+      GameSetup\xPaused = #False
+      StartTime = ElapsedMilliseconds() 
+    EndIf
+    
+    ; --- SPIEL-TAKTTICK (10ms) ---
+    If ElapsedMilliseconds() - StartTime >= #CTMR_BaseTime
+      CycleTime = ElapsedMilliseconds() - #CTMR_BaseTime
+      StartTime = ElapsedMilliseconds()
+      
+      CounterBasedTimers() 
+      Keyboard() 
+      
+      ; Schlangen bewegen
+      For I = 1 To ArraySize(Snakes())
+        With Snakes(I)
+          If \eSnakeType <> #eSnakeType_invisible
+            \TmrSpeed - 1
+            If \TmrSpeed < 1
+              \TmrSpeed = \Speed
+              Snake_Move(I)
+              killed = Snake_DetectCollision(I)
+              xDraw = #True
+              
+              If killed
+                xGameOver = CheckGameOver(I)
+              EndIf
+            EndIf
+          EndIf
+        EndWith
+      Next
+      
+      ; ============================================================================
+      ; KORREKTUR: Diese 3 Food-Blöcke MÜSSEN zwingend HIER innerhalb des 
+      ; 10ms-Timers stehen, damit Lebenszeit und Spawns synchron laufen!
+      ; ============================================================================
+      
+      ; Food-Nachschub alle 500ms (basiert auf CTmr, der im 10ms-Takt runterzählt)
+      If CTmr(#CTMR_500ms) = 0
+        Foods_AddRandomFood(1)
+        xDraw = #True
+      EndIf  
+      
+      ; Food-Bewegung alle 1000ms
+      If CTmr(#CTMR_1000ms) = 0
+        If Foods_Move()
+          xDraw = #True
+        EndIf
+      EndIf
+      
+      ; Food-Lebenszeit exakt im 10ms-Takt verringern
+      If Foods_LifeTime()
+        xDraw = #True
+      EndIf
+      
+      ; ============================================================================
+      
+      ; Render-Pipeline triggern
+      If xDraw
+        Board_Draw()
+        xDraw = #False 
+      EndIf
+      
+      ; Match-Ende auswerten
+      If xGameOver Or KeyboardPushed(#PB_Key_Escape)
+        GameOver()
+        
+        CloseScreen()
+        If GameSetup\xFullScreen = #False
+          CloseWindow(#wndGame)
+        EndIf
+        
+        GameActive = #False
+        HideWindow(#wndMenu, #False) ; Menü zurückholen
+      EndIf
+    EndIf
+    
+    Delay(1) 
+  EndIf
   
 Until exit
-   
 End
+;}
+
+;}
+
+
   
 ; *******************  E N D   P R O G R A M M  ******************************
 ;}
@@ -2640,7 +2806,7 @@ End
 
 DataSection  
   ; #PS$ ist ein in Purebasic vordefinierter String für das Ordnertrennzeichen "\", was
-  ; bei Windows un Linux unterschiedlich ist: Win: "\" ; Linux "/"
+  ; bei Windows und Linux unterschiedlich ist: Win: "\" ; Linux "/"
    head1:   :IncludeBinary "sprites" + #PS$ + "head1.bmp"
    head2:   :IncludeBinary "sprites" + #PS$ + "head2.bmp"
    head3:   :IncludeBinary "sprites" + #PS$ + "head3.bmp"
@@ -2694,12 +2860,12 @@ DataSection
  EndDataSection  
  
  DisableExplicit
-; IDE Options = PureBasic 6.00 LTS (Windows - x86)
-; CursorPosition = 2442
-; FirstLine = 2401
-; Folding = --------
+; IDE Options = PureBasic 6.41 (Windows - x64)
+; CursorPosition = 2008
+; FirstLine = 1838
+; Folding = -----+-4-
 ; Optimizer
 ; EnableXP
-; Executable = Snakes_sm.exe
+; Executable = Snakes_sm_C.exe
 ; CPU = 2
 ; Warnings = Display

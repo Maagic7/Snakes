@@ -1,4 +1,4 @@
-### Retro Snakes Game (PureBasic 6.41+)
+## Retro Snakes Game (PureBasic 6.41+)
 
 An educational 2D classic Snake clone optimized for programming courses, schools, and coding beginners. 
 *Based on the original idea by [kennycason/snakes](https://github.com/kennycason/snakes).*

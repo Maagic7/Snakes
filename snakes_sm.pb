@@ -2583,7 +2583,7 @@ Repeat
       
       ; ============================================================================
       ; KORREKTUR: Diese 3 Food-Blöcke MÜSSEN zwingend HIER innerhalb des 
-      ; 10ms-Timers stehen, damit Lebenszeit und Spawns synchron laufen!
+      ; 10ms-Timers stehen, damit Lebenszeit korrekt läuft!
       ; ============================================================================
       
       ; Food-Nachschub alle 500ms (basiert auf CTmr, der im 10ms-Takt runterzählt)
@@ -2699,11 +2699,11 @@ DataSection
  
 
 ; IDE Options = PureBasic 6.41 (Windows - x64)
-; CursorPosition = 2627
-; FirstLine = 2408
+; CursorPosition = 2585
+; FirstLine = 2570
 ; Folding = --------
 ; Optimizer
 ; EnableXP
-; Executable = Snakes_sm_C.exe
+; Executable = Snakes_sm.exe
 ; CPU = 2
 ; Warnings = Display

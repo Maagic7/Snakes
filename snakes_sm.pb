@@ -67,7 +67,11 @@
 ; COMPILER :  PureBasic 6.40+  www.PureBasic.com
 ; ===========================================================================
 ; ChangeLog:  
-;
+
+;   01.11.2026 S.Maag
+;   - Meldung bei Programmstart für: Sprite Initialiszierung fehlgeschlagen. 
+;     wegen Problem unter Linux mit der Sprite Umgebung (Sprites werden nicht angezeigt)
+;      
 ;   31.10.2026 S.Maag
 ;   - Die beiden seperaten Event-Loops auf eine zusammengeführt, da Purebasic
 ;     auf 2 Event-Loops sehr empfindlich reagiert.
@@ -125,7 +129,7 @@
 ;- ---------------------------------------------------------------------
 ;- To Do
 ;  ---------------------------------------------------------------------
-;  GameOver Procedure
+;  
 
 ;{ ====================      M I T   L I C E N S E        ====================
 ;
@@ -463,7 +467,7 @@ Global NewList Wall.TWall()  ; Liste mit den Wand-Elementen
 
 Global.i NoOfPlayers, HiScore, NumberVersus, JoystickExist, playerjoystick, Paused, pausecounter
 Global.i StartSpeed, MaxFood, FoodItems, Playerwin, xGameOver, StartTime
-Global.i sound, SoundID, SoundIDnew, SoundIDold
+Global.i Sound, SoundID, SoundIDnew, SoundIDold
 
 ;}
 
@@ -546,26 +550,26 @@ EndProcedure
 ; VAR(use4Dir): use 4 directions; Sprite in 4 Ausrichtungen laden
 ; ============================================================================
 
-Macro Catch_Sprite_EX(SpriteID, DSptr, use4Dir=#False)
+Macro Catch_Sprite_EX(_SpriteID, _DSptr, _use4Dir=#False)
   
   ; WICHTIG FÜR PB 6.xx: Das Flag #PB_Sprite_AlphaBlending zwingend beim Laden mitgeben!
-  CatchSprite(SpriteID, DSptr, #PB_Sprite_AlphaBlending)
-  TransparentSpriteColor(SpriteID, RGB(0, 0, 0))  
+  CatchSprite(_SpriteID, _DSptr, #PB_Sprite_AlphaBlending)
+  TransparentSpriteColor(_SpriteID, RGB(0, 0, 0))  
   
-  If use4Dir
+  If _use4Dir
     ; Beim Kopieren übernimmt das neue Sprite ab PB 6.xx das Flag automatisch
-    CopySprite(SpriteID, SpriteID + 1)
-    CopySprite(SpriteID, SpriteID + 2)
-    CopySprite(SpriteID, SpriteID + 3)
+    CopySprite(_SpriteID, _SpriteID + 1)
+    CopySprite(_SpriteID, _SpriteID + 2)
+    CopySprite(_SpriteID, _SpriteID + 3)
     
-    RotateSprite(SpriteID + 1, 90, #PB_Absolute)
-    RotateSprite(SpriteID + 2, 180, #PB_Absolute)
-    RotateSprite(SpriteID + 3, 270, #PB_Absolute)
+    RotateSprite(_SpriteID + 1, 90, #PB_Absolute)
+    RotateSprite(_SpriteID + 2, 180, #PB_Absolute)
+    RotateSprite(_SpriteID + 3, 270, #PB_Absolute)
     
     ; Transparenz für die rotierten Kopien im Videospeicher auffrischen
-    TransparentSpriteColor(SpriteID + 1, RGB(0, 0, 0))
-    TransparentSpriteColor(SpriteID + 2, RGB(0, 0, 0))
-    TransparentSpriteColor(SpriteID + 3, RGB(0, 0, 0))
+    TransparentSpriteColor(_SpriteID + 1, RGB(0, 0, 0))
+    TransparentSpriteColor(_SpriteID + 2, RGB(0, 0, 0))
+    TransparentSpriteColor(_SpriteID + 3, RGB(0, 0, 0))
   EndIf 
 EndMacro
 
@@ -1395,32 +1399,23 @@ Procedure Snake_AddCredits(SnakeID, Credits)
   EndIf
 EndProcedure
 
-Procedure Snake_Food_alt(SnakeID)
-; ============================================================================
-; NAME: Snake_Food
-; DESC: Food-Element verarbeiten
-; VAR(SnakeID):  
-; RET: -
-; ============================================================================
-  
+Procedure Snake_Food(SnakeID)
   Protected *TFood.TFood      ; Pointer-Variable auf Food-Element
   
-  If SnakeID >0 And SnakeID <= ArraySize(Snakes())
-    With Snakes(SnakeID)           ; Snakes\Head Structure öffenen
+  If SnakeID > 0 And SnakeID <= ArraySize(Snakes())
+    With Snakes(SnakeID)           
       
-      ; prüfen ob is sich wirklich um ein Food-Element handelt, auf welches Snake\Head bewegt wurde
+      ; Prüfen, ob es sich um ein Food-Element handelt
       If Grid(\Head\x, \Head\y)\ElementID = #eElement_TFood
-        *TFood = Grid(\Head\x, \Head\y)\ptrElement ; Pointer auf das Food-Element auf dem Grid-Daten übernehmen
+        *TFood = Grid(\Head\x, \Head\y)\ptrElement 
         
-        ; da wir mit dem Pointer *TFood direkt auf den Arbeitsspeicher zugreifen, müssen wir
-        ; sicherstellen, dass der Pointer gültig (also nicht 0 ist) sonst crashed unser Programm
-        ; mit einem Speicherzugriffsfehler
-        If *TFood   ; Pointer<>0
+        If *TFood   ; Pointer gültig
           
-          ; hier Aktionenen, die für alle Foods identisch sind
-          Snake_AddCredits(SnakeID, *TFood\Credits) ; Credits verarbeiten; zu Snake und Player hinzufügen
-          PlaySound(*TFood\SoundID, #Null)          ; Sound 1x abspielen
+          ; Gemeinsame Aktionen
+          Snake_AddCredits(SnakeID, *TFood\Credits) 
+          PlaySound(*TFood\SoundID, #Null)          
           
+          ; Futterabhängige Aktion
           ; hier können weiter Food abhängige Aktionen erfolgen 
           Select *TFood\SpriteID    ; aufsplitten welches Food
               
@@ -1471,49 +1466,20 @@ Procedure Snake_Food_alt(SnakeID)
                 
           EndSelect
           
+          ; --------------------------------------------------
           ; jetz noch Food Aus der Foods() Liste löschen
-          ResetList(Foods())            ; Foods(Liste()) auf Anfang
-          While NextElement(Foods())    ; Alle Elemente der Liste durchlaufen
-            If Foods()\x = *TFood\x     ; wir haben das zu löschende Food-Element
-              If Foods()\y = *TFood\y   ; gefunden, wenn x- und y- Koordinate
-                DeleteElement(Foods())  ; zum Food auf dem Feld passt.
-                Break                   ; Food gefunden und gelöscht While Schleife verlassen
-              EndIf
-            EndIf
-          Wend
           
-        EndIf
-      EndIf
-    EndWith
-  EndIf
-
-EndProcedure
-
-Procedure Snake_Food(SnakeID)
-  Protected *TFood.TFood      ; Pointer-Variable auf Food-Element
-  
-  If SnakeID > 0 And SnakeID <= ArraySize(Snakes())
-    With Snakes(SnakeID)           
-      
-      ; Prüfen, ob es sich um ein Food-Element handelt
-      If Grid(\Head\x, \Head\y)\ElementID = #eElement_TFood
-        *TFood = Grid(\Head\x, \Head\y)\ptrElement 
-        
-        If *TFood   ; Pointer gültig
+          ; ResetList(Foods())            ; Foods(Liste()) auf Anfang
+          ; While NextElement(Foods())    ; Alle Elemente der Liste durchlaufen
+          ;   If Foods()\x = *TFood\x     ; wir haben das zu löschende Food-Element
+          ;     If Foods()\y = *TFood\y   ; gefunden, wenn x- und y- Koordinate
+          ;       DeleteElement(Foods())  ; zum Food auf dem Feld passt.
+          ;       Break                   ; Food gefunden und gelöscht While Schleife verlassen
+          ;     EndIf
+          ;   EndIf
+          ; Wend
           
-          ; Gemeinsame Aktionen
-          Snake_AddCredits(SnakeID, *TFood\Credits) 
-          PlaySound(*TFood\SoundID, #Null)          
-          
-          ; Futterabhängige Aktion
-          Select *TFood\SpriteID    
-            Case #eSprite_Food_Apple        ; Apfel schrumpft die Schlange
-               \length - 1 
-            Default                         ; Alles andere lässt sie wachsen
-               \length + 1 
-          EndSelect
-          
-          ; HOCHPERFORMANTER FIX:
+          ; Perfomance FIX:
           ; Wir springen zum Element, löschen es und übergeben die '1', 
           ; damit der Listen-Pointer auf einem gültigen Nachfolgeelement landet!
           ChangeCurrentElement(Foods(), *TFood)
@@ -1523,10 +1489,12 @@ Procedure Snake_Food(SnakeID)
           Grid(\Head\x, \Head\y)\ElementID = #eElement_Nothing
           Grid(\Head\x, \Head\y)\ptrElement = 0
           
-          ; WICHTIG: Liste zurücksetzen, damit nachfolgende Listendurchläufe 
+          ; Liste zurücksetzen, damit nachfolgende Listendurchläufe 
           ; in der Hauptschleife (z.B. Foods_LifeTime) ganz normal von vorne starten!
+          ; Das könnte man auch weglassen. ForEach beginnt immer beim ersten Element
           ResetList(Foods())
-          
+          ; --------------------------------------------------
+         
         EndIf
       EndIf
     EndWith
@@ -1709,7 +1677,7 @@ Procedure Board_Draw()
         Grid(x, y)\ElementID = #eElement_TFood
         Grid(x, y)\ptrElement = @Foods()
         
-        ; WICHTIG: Die Lebenszeit-Verringerung wurde in die Logikschleife (Teil 13) 
+        ; Die Lebenszeit-Verringerung wurde in die Logikschleife
         ; ausgelagert, um ein doppeltes Abziehen (Soll & Ist) zu verhindern!
       Wend
     EndWith
@@ -2199,150 +2167,6 @@ EndProcedure
     #GADGET_TxtPlus2
   EndEnumeration
 
-Procedure MenuWindow_Create_alt()
-; ============================================================================
-; NAME: Menu
-; DESC: Creates the Main Window
-; VAR(*): 
-; RET: -
-; ============================================================================
-  
-  Protected Top
-  
-   
-  ; KORREKTUR: #PB_Window_Invisible ENTFERNT! Das Fenster öffnet sich sofort sichtbar.
-  If OpenWindow(#wndMenu, 0, 0, 292, 320, "Snakes: by Stefan Maag; Kenny Cason", #PB_Window_ScreenCentered | #PB_Window_SystemMenu)
-    
-    If ReadFile(0, "HS.snake")
-       HiScore =  ReadLong(0)+1234567890
-       NumberVersus = ReadLong(0)+1234567890
-       If NumberVersus < 0 
-         NumberVersus = 0
-       EndIf 
-       If HiScore < 0 
-         HiScore = 0
-       EndIf 
-       CloseFile(0)
-     EndIf 
-     
- ;   LoadAllImages()
-     
-    If UseGadgetList(WindowID(#wndMenu))
-      ; erstellt Bildanzeigen für die Snake-Heads am oberen Fensterrand
-      ImageGadget(#PB_Any,0  ,10,40,40,ImageID(#eImage_head1),#PB_Image_Border)  
-      ImageGadget(#PB_Any,32 ,10,40,40,ImageID(#eImage_head2),#PB_Image_Border)  
-      ImageGadget(#PB_Any,64 ,10,40,40,ImageID(#eImage_head3),#PB_Image_Border)
-      ImageGadget(#PB_Any,96 ,10,40,40,ImageID(#eImage_head4),#PB_Image_Border)
-      ImageGadget(#PB_Any,128,10,40,40,ImageID(#eImage_head5),#PB_Image_Border) 
-      ImageGadget(#PB_Any,160,10,40,40,ImageID(#eImage_head6),#PB_Image_Border)
-      ImageGadget(#PB_Any,192,10,40,40,ImageID(#eImage_head7),#PB_Image_Border)
-      ImageGadget(#PB_Any,224,10,40,40,ImageID(#eImage_head8),#PB_Image_Border)
-      ImageGadget(#PB_Any,256,10,40,40,ImageID(#eImage_head9),#PB_Image_Border)
-      
-       Top = 50 ; Start der Anordnung der Elemente bei Höhe 50
-      
-      ; Beschriftungstexte (Höhe von 120 auf 20 Pixel korrigiert!)
-      TextGadget(#PB_Any, 120, Top + 2,  90, 20, "Hi Score")
-      TextGadget(#PB_Any, 120, Top + 20, 90, 20, Str(HiScore))       ; KORREKTUR: Height=20
-      
-      TextGadget(#PB_Any, 200, Top + 2,  90, 20, "Versus Matches")
-      TextGadget(#PB_Any, 200, Top + 20, 90, 20, Str(NumberVersus))  ; KORREKTUR: Height=20
-      
-      ; Die beiden Check-Boxes (Wir starten das 'Top' unterhalb der Scores frisch)
-      Top + 45
-      
-      CheckBoxGadget(#GADGET_FullScreen, 20, Top, 75, 20, "Full Screen") : Top + 25
-      CheckBoxGadget(#GADGET_Players, 20, Top, 75, 20, "2 Player") : Top + 25
-      
-      ; 1. Überschrift für die Settings zeichnen
-      TextGadget(#PB_Any, 20, Top, 180, 20, "Mult. Player Settings")
-      Top + 25 ; Erhöht von 15 auf 25, damit der Text sich nicht mit dem Regler überschneidet!
-      
-      ; --- 2. PLAYER SPEED REGLER ---
-      ; Wir geben dem Text eine feste, schmale Breite (90), damit er nicht nach rechts ragt
-      TextGadget(#PB_Any, 20, Top + 2, 90, 20, "Player Speed")
-      
-      ; Die Symbole bekommen eine minimale Klickbox (Breite 10, Höhe 15), damit sie die TrackBar nicht überlagern
-      TextGadget(#PB_Any, 115, Top - 12, 10, 15, "-") 
-      TextGadget(#PB_Any, 185, Top - 12, 10, 15, "+")   
-      
-      ; Die TrackBar liegt nun auf einer absolut freien X/Y-Ebene
-      TrackBarGadget(#GADGET_Speed, 110, Top, 80, 20, 0, 35)
-      SetGadgetState(#GADGET_Speed, 10) 
-      
-      Top + 35 ; Sauberer vertikaler Abstand zum nächsten Element
-      
-      ; --- 3. MAX FOOD REGLER ---
-      TextGadget(#PB_Any, 20, Top + 2, 90, 20, "Max Food")
-      TextGadget(#PB_Any, 115, Top - 12, 10, 15, "-") 
-      TextGadget(#PB_Any, 185, Top - 12, 10, 15, "+")   
-      
-      TrackBarGadget(#GADGET_MaxFood, 110, Top, 80, 20, 0, 50)
-      SetGadgetState(#GADGET_MaxFood, 7)
-      
-      Top + 40 ; Platz machen für die nachfolgenden ComboBoxen
-      
-      ; erstellt, beschriftet und füllt Auswahlfeld für Farbe der Snake für Payer 2
-      TextGadget(#PB_Any,10,Top,80,15,"Player 1")       ; erstellt Text-Feld mit Text: "Player 1"
-      ComboBoxGadget(#GADGET_ColorSelect1,10,Top+15,80,24) ; erstellt das Drop-Down Auswahlfeld
-      AddGadgetItem(#GADGET_ColorSelect1,-1,"Green")       ; ab hier wird das Drop-Down gefüllt
-      AddGadgetItem(#GADGET_ColorSelect1,-1,"Yellow") 
-      AddGadgetItem(#GADGET_ColorSelect1,-1,"Orange") 
-      AddGadgetItem(#GADGET_ColorSelect1,-1,"Blue") 
-      AddGadgetItem(#GADGET_ColorSelect1,-1,"Teal") 
-      AddGadgetItem(#GADGET_ColorSelect1,-1,"Red") 
-      AddGadgetItem(#GADGET_ColorSelect1,-1,"Purple")
-      AddGadgetItem(#GADGET_ColorSelect1,-1,"Chost") 
-      AddGadgetItem(#GADGET_ColorSelect1,-1,"Hippy") 
-      SetGadgetState(#GADGET_ColorSelect1,0)  
-      
-      ; erstellt, beschriftet und füllt Auswahlfeld für Farbe der Snake für Payer 2
-      TextGadget(#PB_Any,120,Top,80,15,"Player 2")  
-      ComboBoxGadget(#GADGET_ColorSelect2,120,Top+15,80,24) :Top + 45
-      AddGadgetItem(#GADGET_ColorSelect2,-1,"Green") 
-      AddGadgetItem(#GADGET_ColorSelect2,-1,"Yellow") 
-      AddGadgetItem(#GADGET_ColorSelect2,-1,"Orange") 
-      AddGadgetItem(#GADGET_ColorSelect2,-1,"Blue") 
-      AddGadgetItem(#GADGET_ColorSelect2,-1,"Teal") 
-      AddGadgetItem(#GADGET_ColorSelect2,-1,"Red") 
-      AddGadgetItem(#GADGET_ColorSelect2,-1,"Purple")
-      AddGadgetItem(#GADGET_ColorSelect2,-1,"Ghost") 
-      AddGadgetItem(#GADGET_ColorSelect2,-1,"Hippy") 
-      SetGadgetState(#GADGET_ColorSelect2,1)    ; set (beginning with 1) the 1st item as active one
-      
-      ; Das Auswahlfeld für den Joystick Controller
-      TextGadget(#PB_Any,10,Top,80,15,"Controller") 
-      ComboBoxGadget(#GADGET_Controller,70,Top,80,24) :Top+40
-      AddGadgetItem(#GADGET_Controller,-1,"Disabled") 
-      AddGadgetItem(#GADGET_Controller,-1,"Player 1") 
-      AddGadgetItem(#GADGET_Controller,-1,"Player 2") 
-      
-      If JoystickExist
-        SetGadgetState(#GADGET_Controller,1) 
-      Else
-        SetGadgetState(#GADGET_Controller,0)
-      EndIf 
-      
-      ; erstellt, beschriftet und füllt Drop-Down für die Auswahl der Hintergrundmusik
-      TextGadget(#PB_Any,10,Top-15,80,60,"Music")
-      ComboBoxGadget(#GADGET_Sound,10,Top,100,24) :Top+30
-      AddGadgetItem(#GADGET_Sound,-1,"None") 
-      AddGadgetItem(#GADGET_Sound,-1,"Music A") 
-      AddGadgetItem(#GADGET_Sound,-1,"Music B")
-      AddGadgetItem(#GADGET_Sound,-1,"Music C") 
-      AddGadgetItem(#GADGET_Sound,-1,"Music D")         
-      SetGadgetState(#GADGET_Sound,0)  
-      
-      ; hier die Tasten für "Play" und "Exit"
-      ButtonGadget(#GADGET_Launch,   6, Top, 95, 28, "Play", #PB_Button_Default) ; Play
-      ButtonGadget(#GADGET_Cancel, 111, Top, 95, 28, "Exit")                     ; Exit
-      
-    EndIf   
-     
-    ProcedureReturn #True ; Procedure Rückgabewert; Window wurde erstellt; o.k.
-  EndIf   ; OpenWindow    
-  
-EndProcedure
 
 Procedure MenuWindow_Create()
 ; ============================================================================
@@ -2561,6 +2385,8 @@ Procedure StartGame()
   EndIf
   
   Delay(5) 
+  ; Sprites müssen bei jedem Spielstart neu geladen werden, da
+  ; Sprites einen activen OpenScreen benötigen.
   LoadAllSprites() ; Sprites in den Speicher laden
   
   ; 4. Start-Foods zeitversetzt generieren
@@ -2585,14 +2411,31 @@ EndProcedure
 Global Event, players, exit
 Global GameActive = #False
 
-InitSprite()        
-If InitSound(): sound = 1: EndIf 
-InitKeyboard()      
-If InitJoystick(): GameSetup\JoyStickExist = #True: EndIf 
+InitSprite()  
+If InitSprite() = 0
+  MessageRequester("Error!", "Initializing Sprite Enviroment failed!", #PB_MessageRequester_Error)  
+EndIf
 
-LoadAllImages()     
+If InitSound()
+  Sound = 1
+EndIf 
+
+InitKeyboard()      
+
+If InitJoystick()
+  GameSetup\JoyStickExist = #True
+EndIf 
+
+LoadAllImages()
 LoadSnakeSounds()   
 Init_FoodTemplates()
+
+; Wir können Sprites hier nicht direkt laden, da
+; Sprites zuerst einen OpenScreen Befehl benötigen.
+; den gibt es erst beim Erstellen des Spielfeldes.
+; wir müssen die Sprites bei jedem Spiel Start 
+; neu laden!
+; LoadAllSprites() ; Sprites in den Speicher laden
 
 #MenuAction_StartGame = 1
 #MenuAction_EndProgram = 2
@@ -2788,11 +2631,6 @@ Repeat
   
 Until exit
 End
-;}
-
-;}
-
-
   
 ; *******************  E N D   P R O G R A M M  ******************************
 ;}
@@ -2859,11 +2697,11 @@ DataSection
 
  EndDataSection  
  
- DisableExplicit
+
 ; IDE Options = PureBasic 6.41 (Windows - x64)
-; CursorPosition = 2008
-; FirstLine = 1838
-; Folding = -----+-4-
+; CursorPosition = 2627
+; FirstLine = 2408
+; Folding = --------
 ; Optimizer
 ; EnableXP
 ; Executable = Snakes_sm_C.exe
